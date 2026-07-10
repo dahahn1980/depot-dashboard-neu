@@ -1,11 +1,12 @@
-# Depot Dashboard V5
+# Portfolio OS V6
 
-Neu:
-- moderne, stärker typografische Oberfläche
-- Navigation nach Übersicht, Positionen, Sparplänen, Analyse, Historie und Datenqualität
-- Detailansicht je Wertpapier
-- Zeitraumfilter
-- automatische Datenchecks
-- Notizen pro Messpunkt
-- CSV-, JSON- und PDF/Druck-Export
-- interaktive Diagramme und Detailansichten
+Kompletter Neustart mit:
+- radikal neuem Dark-App-Design
+- Sidebar-Navigation
+- Health Score
+- Treemap und Heatmap
+- Positions-Drawer
+- Timeline
+- Simulation
+- lokalem Portfolio-Assistenten
+- Datenchecks und Exporte

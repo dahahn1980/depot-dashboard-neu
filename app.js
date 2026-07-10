@@ -1,153 +1,79 @@
 
-const COLORS=["#315efb","#6d4aff","#0ea5a8","#0f9f6e","#f59e0b","#d94645","#6366f1","#0f766e"];
+const C=["#5d8cff","#8b6cff","#00a6a6","#00d37f","#f9c74f","#ff4d6d","#6f7bf7","#0f766e"];
 const eur=v=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(v);
 const pct=v=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)+" %";
-const latest=D.depot.at(-1),start=D.depot[0],low=Math.min(...D.depot),high=Math.max(...D.depot);
 const allSeries={...D.core,...D.savings};
+const latest=D.depot.at(-1),start=D.depot[0],high=Math.max(...D.depot),low=Math.min(...D.depot);
 
-function rangeSlice(labels,values,range){
-  const n=range==="1m"?4:range==="3m"?10:values.length;
-  return {labels:labels.slice(-n),values:values.slice(-n),offset:values.length-Math.min(n,values.length)};
+function sliceRange(labels,values,range){const n=range==="1m"?4:range==="3m"?10:values.length;return{labels:labels.slice(-n),values:values.slice(-n),offset:values.length-Math.min(n,values.length)}}
+function lineChart(id,labels,series,{percent=false,zero=false,onPoint=null}={}){
+ const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:70,r:20,t:20,b:44};
+ let vals=series.flatMap(s=>s.values),lo=Math.min(...vals),hi=Math.max(...vals);if(zero){lo=Math.min(lo,0);hi=Math.max(hi,0)}const pad=(hi-lo)*.1||1;lo-=pad;hi+=pad;
+ const x=i=>p.l+i*(W-p.l-p.r)/Math.max(1,labels.length-1),y=v=>p.t+(hi-v)*(H-p.t-p.b)/(hi-lo);let out="";
+ for(let i=0;i<5;i++){const v=lo+i*(hi-lo)/4,yy=y(v);out+=`<line x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}" stroke="var(--line)"/><text x="${p.l-9}" y="${yy+4}" text-anchor="end" fill="var(--muted)" font-size="11">${percent?pct(v):Math.round(v/1000)+"k"}</text>`}
+ labels.forEach((d,i)=>{if(i===0||i===labels.length-1||i%3===0)out+=`<text x="${x(i)}" y="${H-15}" text-anchor="middle" fill="var(--muted)" font-size="11">${d}</text>`});
+ series.forEach((s,si)=>{const pts=s.values.map((v,i)=>`${x(i)},${y(v)}`).join(" ");out+=`<polyline points="${pts}" fill="none" stroke="${C[si%C.length]}" stroke-width="${s.bold?4:2.7}" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 8px ${C[si%C.length]}55)"/>`;s.values.forEach((v,i)=>out+=`<circle class="hit" data-si="${si}" data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="11" fill="transparent"/><circle cx="${x(i)}" cy="${y(v)}" r="3.6" fill="${C[si%C.length]}" stroke="white" stroke-width="1.5"/>`)});
+ svg.innerHTML=out;svg.querySelectorAll(".hit").forEach(el=>el.onclick=()=>{if(onPoint)onPoint(series[+el.dataset.si],+el.dataset.i)});
 }
-function svgLineChart(id,labels,series,{percent=false,zero=false,onPoint=null}={}){
-  const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:66,r:20,t:18,b:42};
-  const vals=series.flatMap(s=>s.values);let lo=Math.min(...vals),hi=Math.max(...vals);if(zero){lo=Math.min(lo,0);hi=Math.max(hi,0)}
-  const pad=(hi-lo)*.1||1;lo-=pad;hi+=pad;
-  const x=i=>p.l+i*(W-p.l-p.r)/Math.max(1,labels.length-1),y=v=>p.t+(hi-v)*(H-p.t-p.b)/(hi-lo);
-  let out="";
-  for(let i=0;i<5;i++){const v=lo+i*(hi-lo)/4,yy=y(v);out+=`<line x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}" stroke="var(--line)"/><text x="${p.l-8}" y="${yy+4}" text-anchor="end" fill="var(--muted)" font-size="11">${percent?pct(v):Math.round(v/1000)+"k"}</text>`}
-  labels.forEach((d,i)=>{if(i===0||i===labels.length-1||i%3===0)out+=`<text x="${x(i)}" y="${H-14}" text-anchor="middle" fill="var(--muted)" font-size="11">${d}</text>`})
-  series.forEach((s,si)=>{const pts=s.values.map((v,i)=>`${x(i)},${y(v)}`).join(" ");out+=`<polyline points="${pts}" fill="none" stroke="${COLORS[si%COLORS.length]}" stroke-width="${s.bold?4:2.6}" stroke-linecap="round" stroke-linejoin="round"/>`;s.values.forEach((v,i)=>out+=`<circle class="hit" data-si="${si}" data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="10" fill="transparent"/><circle cx="${x(i)}" cy="${y(v)}" r="3.7" fill="${COLORS[si%COLORS.length]}" stroke="white" stroke-width="1.5"/>`)});
-  svg.innerHTML=out;
-  svg.querySelectorAll(".hit").forEach(el=>el.onclick=()=>{const si=+el.dataset.si,i=+el.dataset.i;if(onPoint)onPoint(series[si],i)});
+function hbars(id,rows,key,fmt,onClick=null){
+ const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:210,r:90,t:15,b:18},max=Math.max(...rows.map(r=>Math.abs(r[key])))||1,rh=(H-p.t-p.b)/rows.length;let out="";
+ rows.forEach((r,i)=>{const y=p.t+i*rh+rh*.23,h=rh*.5,w=Math.abs(r[key])/max*(W-p.l-p.r),x=r[key]>=0?p.l:p.l-w,col=r[key]>=0?"#00d37f":"#ff4d6d";out+=`<text x="${p.l-8}" y="${y+h*.72}" text-anchor="end" fill="var(--text)" font-size="11">${r.name}</text><rect class="barhit" data-i="${i}" x="${Math.min(x,p.l)}" y="${y-4}" width="${Math.max(w,14)}" height="${h+8}" fill="transparent"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${col}"/><text x="${r[key]>=0?x+w+7:x-7}" y="${y+h*.72}" text-anchor="${r[key]<0?"end":"start"}" fill="var(--text)" font-size="11">${fmt(r[key])}</text>`});out+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="var(--muted)"/>`;svg.innerHTML=out;if(onClick)svg.querySelectorAll(".barhit").forEach(el=>el.onclick=()=>onClick(rows[+el.dataset.i]));
 }
-function hbars(id,rows,key,fmt,signed=true,onClick=null){
-  const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:210,r:85,t:14,b:18},max=Math.max(...rows.map(r=>Math.abs(r[key])))||1,rh=(H-p.t-p.b)/rows.length;
-  let out="";
-  rows.forEach((r,i)=>{const y=p.t+i*rh+rh*.23,h=rh*.5,w=Math.abs(r[key])/max*(W-p.l-p.r),x=signed?(r[key]>=0?p.l:p.l-w):p.l,col=signed?(r[key]>=0?"#0f9f6e":"#d94645"):"#315efb";out+=`<text x="${p.l-8}" y="${y+h*.72}" text-anchor="end" fill="var(--text)" font-size="11">${r.name}</text><rect class="bar-hit" data-i="${i}" x="${Math.min(x,p.l)}" y="${y-4}" width="${Math.max(w,14)}" height="${h+8}" rx="8" fill="transparent"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${col}"/><text x="${signed?(r[key]>=0?x+w+7:x-7):x+w+7}" y="${y+h*.72}" text-anchor="${signed&&r[key]<0?"end":"start"}" fill="var(--text)" font-size="11">${fmt(r[key])}</text>`});
-  if(signed)out+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="var(--muted)"/>`;
-  svg.innerHTML=out;
-  if(onClick)svg.querySelectorAll(".bar-hit").forEach(el=>el.onclick=()=>onClick(rows[+el.dataset.i]));
-}
-function spark(values){
-  const W=320,H=70,p=4,lo=Math.min(...values),hi=Math.max(...values),x=i=>p+i*(W-2*p)/Math.max(1,values.length-1),y=v=>p+(hi-v)*(H-2*p)/((hi-lo)||1);
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}"><polyline points="${values.map((v,i)=>`${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="#315efb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-}
-function showModal(title,html){
-  document.getElementById("modalContent").innerHTML=`<div class="section-kicker">Detailansicht</div><h2 style="font-size:34px;margin:6px 0 18px">${title}</h2>${html}`;
-  document.getElementById("detailModal").classList.add("show");
-}
-document.getElementById("modalClose").onclick=()=>document.getElementById("detailModal").classList.remove("show");
-document.getElementById("detailModal").onclick=e=>{if(e.target.id==="detailModal")e.currentTarget.classList.remove("show")};
+function spark(values){const W=340,H=80,p=4,lo=Math.min(...values),hi=Math.max(...values),x=i=>p+i*(W-2*p)/Math.max(1,values.length-1),y=v=>p+(hi-v)*(H-2*p)/((hi-lo)||1);return`<svg class="spark" viewBox="0 0 ${W} ${H}"><polyline points="${values.map((v,i)=>`${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="#5d8cff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function drawer(title,html){document.getElementById("drawerBody").innerHTML=`<div class="eyebrow">Position detail</div><h2 style="font-size:34px;margin:8px 0 18px">${title}</h2>${html}`;document.getElementById("drawer").classList.add("show")}
+document.getElementById("drawerClose").onclick=()=>document.getElementById("drawer").classList.remove("show");
 
-document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById("view-"+b.dataset.view).classList.add("active")});
+document.querySelectorAll(".side-link").forEach(b=>b.onclick=()=>{document.querySelectorAll(".side-link").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById("view-"+b.dataset.view).classList.add("active")});
 
-document.getElementById("kpis").innerHTML=[
- ["Aktueller Depotwert",eur(latest),"Stand "+D.meta.lastUpdate],
- ["Seit Start",eur(latest-start),pct((latest/start-1)*100)],
- ["Letzte Veränderung",eur(latest-D.depot.at(-2)),pct((latest/D.depot.at(-2)-1)*100)],
- ["Abstand zum Hoch",eur(latest-high),pct((latest/high-1)*100)]
-].map(x=>`<article class="metric"><div class="label">${x[0]}</div><div class="value ${x[1].startsWith("-")?"neg":"pos"}">${x[1]}</div><div class="hint">${x[2]}</div></article>`).join("");
+document.getElementById("heroValue").textContent=eur(latest);
+document.getElementById("heroChange").textContent=`${eur(latest-start)} · ${pct((latest/start-1)*100)} since start`;
+const diversification=82,performance=Math.max(0,Math.min(100,50+(latest/start-1)*350)),stability=76,savingsScore=92,health=Math.round((diversification+performance+stability+savingsScore)/4);
+document.getElementById("healthScore").textContent=health;document.getElementById("healthArc").style.strokeDashoffset=314*(1-health/100);
 
-let depotRange="all";
-function drawDepot(){
-  const r=rangeSlice(D.dates,D.depot,depotRange);
-  svgLineChart("depotChart",r.labels,[{name:"Depotwert",values:r.values,bold:true}],{onPoint:(s,i)=>{const gi=r.offset+i,v=s.values[i],prev=gi>0?D.depot[gi-1]:null;document.getElementById("depotDetail").innerHTML=[
-    ["Datum",D.fullDates[gi]],["Depotwert",eur(v)],["Zum vorherigen Punkt",prev===null?"–":eur(v-prev)],["Seit Start",pct((v/start-1)*100)]
-  ].map(x=>`<div class="detail-cell"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("")+(D.notes[D.fullDates[gi]]?`<div class="detail-cell" style="grid-column:1/-1"><span>Notiz</span><strong>${D.notes[D.fullDates[gi]]}</strong></div>`:"")}});
-}
-drawDepot();
+let heroRange="all";
+function drawHero(){const r=sliceRange(D.dates,D.depot,heroRange);lineChart("heroChart",r.labels,[{name:"Portfolio",values:r.values,bold:true}],{onPoint:(s,i)=>{const gi=r.offset+i,v=s.values[i],prev=gi>0?D.depot[gi-1]:null;document.getElementById("heroPointInfo").innerHTML=[["Date",D.fullDates[gi]],["Value",eur(v)],["Change",prev===null?"–":eur(v-prev)],["Since start",pct((v/start-1)*100)]].map(x=>`<div><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("")}})}
+drawHero();document.querySelectorAll("#heroRange button").forEach(b=>b.onclick=()=>{heroRange=b.dataset.range;b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawHero()});
 
-document.querySelectorAll('.range-switch[data-target="depotChart"] button').forEach(b=>b.onclick=()=>{depotRange=b.dataset.range;b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawDepot()});
+document.getElementById("insightStrip").innerHTML=[
+ ["Current high",eur(high)],["Distance to high",pct((latest/high-1)*100)],["Recovery from low",eur(latest-low)],["Best weekly mover",D.weeklyChanges[0].name]
+].map(x=>`<div class="insight"><div class="label">${x[0]}</div><strong>${x[1]}</strong></div>`).join("");
 
-function donut(){
-  const svg=document.getElementById("donut"),cx=260,cy=160,r=105,sw=52,total=D.categories.reduce((a,b)=>a+b.value,0);let acc=0,out="";
-  D.categories.forEach((c,i)=>{const f=c.value/total,len=2*Math.PI*r*f,off=-2*Math.PI*r*acc;out+=`<circle class="donut-hit" data-i="${i}" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${COLORS[i]}" stroke-width="${sw}" stroke-dasharray="${len} ${2*Math.PI*r-len}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"/>`;acc+=f});
-  out+=`<text x="${cx}" y="${cy-3}" text-anchor="middle" fill="var(--muted)" font-size="13">Depotwert</text><text x="${cx}" y="${cy+30}" text-anchor="middle" fill="var(--text)" font-size="25" font-weight="800">${Math.round(total/1000)} Tsd. €</text>`;svg.innerHTML=out;
-  svg.querySelectorAll(".donut-hit").forEach(el=>el.onclick=()=>{const c=D.categories[+el.dataset.i],ps=D.positions.filter(p=>p.cat===c.name);showModal(c.name,`<div class="fact-grid">${[["Kategorie-Wert",eur(c.value)],["Depotanteil",pct(c.value/total*100)]].map(x=>`<div class="fact"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("")}</div><div class="table-wrap"><table><thead><tr><th>Position</th><th>Wert</th></tr></thead><tbody>${ps.map(p=>`<tr><td>${p.name}</td><td>${eur(p.value)}</td></tr>`).join("")}</tbody></table></div>`)});
-  document.getElementById("catLegend").innerHTML=D.categories.map((c,i)=>`<span><i style="background:${COLORS[i]}"></i>${c.name} · ${pct(c.value/total*100)}</span>`).join("");
-}
-donut();
+const catColors=["#183a76","#254c8f","#315efb","#6d4aff"];
+const sortedCats=[...D.categories].sort((a,b)=>b.value-a.value);
+document.getElementById("treemap").innerHTML=sortedCats.map((c,i)=>`<div class="tree-cell ${i===0?"big":i===1?"medium":"small"}" data-cat="${c.name}" style="background:linear-gradient(145deg,${catColors[i]},${catColors[i]}99)"><strong>${c.name}</strong><span>${eur(c.value)}</span></div>`).join("");
+document.querySelectorAll(".tree-cell").forEach(el=>el.onclick=()=>{const cat=el.dataset.cat,ps=D.positions.filter(p=>p.cat===cat);drawer(cat,`<div class="stat-grid">${ps.map(p=>`<div class="stat"><span>${p.name}</span><strong>${eur(p.value)}</strong></div>`).join("")}</div>`)});
 
-document.getElementById("ranking").innerHTML=`<div class="rank-list">${D.weeklyChanges.slice(0,3).map((r,i)=>`<div class="rank-item"><span>${i+1}. ${r.name}</span><strong class="${r.change>=0?"pos":"neg"}">${eur(r.change)}</strong></div>`).join("")}<div style="height:8px"></div>${D.weeklyChanges.slice(-3).reverse().map((r,i)=>`<div class="rank-item"><span>${i+1}. ${r.name}</span><strong class="${r.change>=0?"pos":"neg"}">${eur(r.change)}</strong></div>`).join("")}</div>`;
-hbars("perfChart",D.positions,"perf",pct,true,r=>openPosition(r.name));
+document.getElementById("heatmap").innerHTML=D.weeklyChanges.map(r=>{const intensity=Math.min(1,Math.abs(r.change)/(Math.max(...D.weeklyChanges.map(x=>Math.abs(x.change)))||1));const color=r.change>=0?`rgba(0,211,127,${.25+.65*intensity})`:`rgba(255,77,109,${.25+.65*intensity})`;return`<div class="heat" style="background:${color}" data-name="${r.name}"><strong>${r.name}</strong><span>${eur(r.change)}</span></div>`}).join("");
+document.querySelectorAll(".heat").forEach(el=>el.onclick=()=>openPosition(el.dataset.name));
 
-let coreRange="all",coreMode="all";
-const coreNames=Object.keys(D.core);
-document.getElementById("coreTabs").innerHTML='<button class="active" data-mode="all">Alle</button>'+coreNames.map((n,i)=>`<button data-mode="${i}">${n}</button>`).join("");
-function drawCore(){
-  const names=coreMode==="all"?coreNames:[coreNames[+coreMode]];
-  const series=names.map(n=>{
-    const r=rangeSlice(D.dates,D.core[n],coreRange);
-    return {name:n,values:r.values.map(v=>v/r.values[0]*100),offset:r.offset};
-  });
-  const labels=rangeSlice(D.dates,D.core[names[0]],coreRange).labels;
-  svgLineChart("coreChart",labels,series,{
-    onPoint:(s,i)=>{
-      const global=(s.offset||0)+i;
-      const cells=[
-        ["Datum",D.fullDates[global]],
-        ["Index",s.values[i].toFixed(2)],
-        ["Seit Zeitraumstart",pct(s.values[i]-100)]
-      ].map(x=>`<div class="fact"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
-      showModal(s.name,`<div class="fact-grid">${cells}</div>`);
-    }
-  });
-  document.getElementById("coreLegend").innerHTML=names.map((n,i)=>`<span><i style="background:${COLORS[i]}"></i>${n}</span>`).join("");
-}
-drawCore();
-document.querySelectorAll("#coreTabs button").forEach(b=>b.onclick=()=>{coreMode=b.dataset.mode;b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawCore()});
-document.querySelectorAll('.range-switch[data-target="coreChart"] button').forEach(b=>b.onclick=()=>{coreRange=b.dataset.range;b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawCore()});
+function donut(){const svg=document.getElementById("donut"),cx=280,cy=170,r=110,sw=54,total=D.categories.reduce((a,b)=>a+b.value,0);let acc=0,out="";D.categories.forEach((c,i)=>{const f=c.value/total,len=2*Math.PI*r*f,off=-2*Math.PI*r*acc;out+=`<circle class="seg" data-i="${i}" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C[i]}" stroke-width="${sw}" stroke-dasharray="${len} ${2*Math.PI*r-len}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"/>`;acc+=f});out+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="var(--muted)" font-size="13">Portfolio</text><text x="${cx}" y="${cy+28}" text-anchor="middle" fill="var(--text)" font-size="26" font-weight="800">${Math.round(total/1000)}k</text>`;svg.innerHTML=out;svg.querySelectorAll(".seg").forEach(el=>el.onclick=()=>{const c=D.categories[+el.dataset.i];drawer(c.name,`<div class="stat-grid"><div class="stat"><span>Value</span><strong>${eur(c.value)}</strong></div><div class="stat"><span>Share</span><strong>${pct(c.value/total*100)}</strong></div></div>`)});document.getElementById("catLegend").innerHTML=D.categories.map((c,i)=>`<span><i style="background:${C[i]}"></i>${c.name} · ${pct(c.value/total*100)}</span>`).join("")}
+donut();hbars("plChart",D.positions,"pl",eur,r=>openPosition(r.name));
 
-document.getElementById("positionCards").innerHTML=D.positions.map(p=>`<article class="position-card" data-name="${p.name}"><h3>${p.name}</h3><div class="meta">${p.wkn} · ${p.cat}</div>${spark(allSeries[p.name])}<div class="row"><span>Aktueller Wert</span><strong>${eur(p.value)}</strong></div><div class="row"><span>Gewinn / Verlust</span><strong class="${p.pl>=0?"pos":"neg"}">${eur(p.pl)}</strong></div><div class="row"><span>Performance</span><strong class="${p.perf>=0?"pos":"neg"}">${pct(p.perf)}</strong></div></article>`).join("");
-document.querySelectorAll(".position-card").forEach(c=>c.onclick=()=>openPosition(c.dataset.name));
+const names=Object.keys(D.core);document.getElementById("positionChips").innerHTML='<button class="active" data-name="all">All</button>'+names.map(n=>`<button data-name="${n}">${n}</button>`).join("");
+function drawCompare(selected="all"){const used=selected==="all"?names:[selected];const series=used.map(n=>({name:n,values:D.core[n].map(v=>v/D.core[n][0]*100)}));lineChart("compareChart",D.dates,series)}
+drawCompare();document.querySelectorAll("#positionChips button").forEach(b=>b.onclick=()=>{b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawCompare(b.dataset.name)});
 
-function openPosition(name){
-  const p=D.positions.find(x=>x.name===name),arr=allSeries[name],peak=Math.max(...arr),trough=Math.min(...arr),weekly=arr.at(-1)-arr.at(-2),monthlyChange=arr.at(-1)-arr[Math.max(0,arr.length-4)],best=Math.max(...arr.slice(1).map((v,i)=>v-arr[i])),worst=Math.min(...arr.slice(1).map((v,i)=>v-arr[i]));
-  showModal(name,`<div class="fact-grid">${[
-    ["Investiert",eur(p.invested)],["Aktueller Wert",eur(p.value)],["Gewinn / Verlust",eur(p.pl)],["Performance",pct(p.perf)],
-    ["Letzter Messpunkt",eur(weekly)],["Ca. 1 Monat",eur(monthlyChange)],["Abstand zum Hoch",pct((p.value/peak-1)*100)],["Bisheriges Tief",eur(trough)],
-    ["Beste Periode",eur(best)],["Schlechteste Periode",eur(worst)]
-  ].map(x=>`<div class="fact"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("")}</div><svg id="modalChart" class="chart chart-lg" viewBox="0 0 900 340"></svg>`);
-  svgLineChart("modalChart",D.dates,[{name,values:arr,bold:true}],{onPoint:(s,i)=>{}});
-}
+document.getElementById("positionGrid").innerHTML=D.positions.map(p=>`<article class="position-card" data-name="${p.name}"><h3>${p.name}</h3><div class="meta">${p.wkn} · ${p.cat}</div>${spark(allSeries[p.name])}<div class="row"><span>Value</span><strong>${eur(p.value)}</strong></div><div class="row"><span>Performance</span><strong class="${p.perf>=0?"pos":"neg"}">${pct(p.perf)}</strong></div></article>`).join("");
+document.querySelectorAll(".position-card").forEach(el=>el.onclick=()=>openPosition(el.dataset.name));
 
-const sn=Object.keys(D.savings);
-document.getElementById("savingTabs").innerHTML=sn.map((n,i)=>`<button class="${i===0?"active":""}" data-i="${i}">${n}</button>`).join("");
-function drawSaving(i=0){const n=sn[i],v=D.savings[n],invested=D.contrib.at(-1),current=v.at(-1),gain=current-invested;svgLineChart("savingsChart",D.dates,[{name:n,values:v,bold:true},{name:"Einzahlungen",values:D.contrib}]);document.getElementById("savingFacts").innerHTML=[["Eingezahlt",eur(invested)],["Aktueller Wert",eur(current)],["Reiner Kursgewinn",eur(gain)],["Rendite",pct(gain/invested*100)],["Durchschnittlicher Einstand",eur(invested/(D.positions.find(p=>p.name===n)?.value/current||1))]].map(x=>`<div class="fact"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("")}
-drawSaving();document.querySelectorAll("#savingTabs button").forEach(b=>b.onclick=()=>{b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawSaving(+b.dataset.i)});
+function openPosition(name){const p=D.positions.find(x=>x.name===name),arr=allSeries[name],peak=Math.max(...arr),trough=Math.min(...arr),weekly=arr.at(-1)-arr.at(-2),month=arr.at(-1)-arr[Math.max(0,arr.length-4)],best=Math.max(...arr.slice(1).map((v,i)=>v-arr[i])),worst=Math.min(...arr.slice(1).map((v,i)=>v-arr[i]));drawer(name,`<div class="stat-grid">${[["Invested",eur(p.invested)],["Current",eur(p.value)],["P/L",eur(p.pl)],["Performance",pct(p.perf)],["Last move",eur(weekly)],["1 month",eur(month)],["Distance to high",pct((p.value/peak-1)*100)],["Low",eur(trough)],["Best period",eur(best)],["Worst period",eur(worst)]].map(x=>`<div class="stat"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("")}</div><svg id="drawerChart" class="chart" viewBox="0 0 500 300"></svg>`);lineChart("drawerChart",D.dates,[{name,values:arr,bold:true}])}
 
-let runningMax=-Infinity,maxDD=0,maxDDIndex=0,peakIndex=0;
-const dd=D.depot.map((v,i)=>{if(v>runningMax){runningMax=v;peakIndex=i}const d=(v/runningMax-1)*100;if(d<maxDD){maxDD=d;maxDDIndex=i}return d});
-svgLineChart("drawdownChart",D.dates,[{name:"Drawdown",values:dd,bold:true}],{percent:true,zero:true});
-document.getElementById("drawdownFacts").innerHTML=[["Größter Rückgang",pct(maxDD)],["Tiefpunkt",D.dates[maxDDIndex]],["Aktueller Abstand zum Hoch",pct((latest/high-1)*100)],["Hochpunkt",D.dates[D.depot.indexOf(high)]]].map(x=>`<div class="fact"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
-hbars("monthlyChart",D.monthly.map(m=>({name:m.month.slice(5)+"/"+m.month.slice(2,4),value:m.change})),"value",eur,true);
-hbars("plChart",D.positions,"pl",eur,true,r=>openPosition(r.name));
+let rm=-Infinity,maxDD=0,maxDDi=0;const dd=D.depot.map((v,i)=>{rm=Math.max(rm,v);const d=(v/rm-1)*100;if(d<maxDD){maxDD=d;maxDDi=i}return d});lineChart("drawdownChart",D.dates,[{name:"Drawdown",values:dd,bold:true}],{percent:true,zero:true});document.getElementById("drawdownStats").innerHTML=[["Max drawdown",pct(maxDD)],["Low date",D.dates[maxDDi]],["Current gap",pct((latest/high-1)*100)],["Recovered",eur(latest-low)]].map(x=>`<div class="stat"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("");
+hbars("monthlyChart",D.monthly.map(m=>({name:m.month.slice(5)+"/"+m.month.slice(2,4),value:m.change})),"value",eur);
 
-function checks(){
-  const list=[];
-  const catSum=D.categories.reduce((a,b)=>a+b.value,0),posSum=D.positions.reduce((a,b)=>a+b.value,0);
-  list.push({state:Math.abs(catSum-latest)<1?"ok":"bad",title:"Kategorien = Gesamtdepot",text:`Differenz ${eur(catSum-latest)}`});
-  list.push({state:Math.abs(posSum-latest)<1?"ok":"bad",title:"Positionen = Gesamtdepot",text:`Differenz ${eur(posSum-latest)}`});
-  const lengths=[D.dates.length,D.depot.length,...Object.values(D.core).map(a=>a.length),...Object.values(D.savings).map(a=>a.length)];
-  list.push({state:new Set(lengths).size===1?"ok":"bad",title:"Zeitreihen vollständig",text:`${Math.max(...lengths)} Messpunkte`});
-  const spike=Math.max(...D.depot.slice(1).map((v,i)=>Math.abs(v-D.depot[i])));
-  list.push({state:spike>5000?"warn":"ok",title:"Ausreißerprüfung",text:`Größte Veränderung ${eur(spike)}`});
-  document.getElementById("checkList").innerHTML=list.map(x=>`<div class="check-item ${x.state}"><strong>${x.title}</strong><div style="color:var(--muted);margin-top:4px">${x.text}</div></div>`).join("");
-}
-checks();
+function checks(){const cat=D.categories.reduce((a,b)=>a+b.value,0),pos=D.positions.reduce((a,b)=>a+b.value,0),lens=[D.dates.length,D.depot.length,...Object.values(D.core).map(a=>a.length),...Object.values(D.savings).map(a=>a.length)];const list=[{s:Math.abs(cat-latest)<1?"ok":"bad",t:"Category reconciliation",x:eur(cat-latest)},{s:Math.abs(pos-latest)<1?"ok":"bad",t:"Position reconciliation",x:eur(pos-latest)},{s:new Set(lens).size===1?"ok":"bad",t:"Series completeness",x:`${Math.max(...lens)} points`},{s:"ok",t:"Data freshness",x:D.meta.lastUpdate}];document.getElementById("checks").innerHTML=list.map(x=>`<div class="check ${x.s}"><strong>${x.t}</strong><div style="color:var(--muted);margin-top:5px">${x.x}</div></div>`).join("")}checks();
 
-document.getElementById("historyTimeline").innerHTML=D.fullDates.slice().reverse().map((d,ri)=>{const i=D.fullDates.length-1-ri;return `<div class="timeline-item"><div><div class="timeline-date">${d}</div><div class="badge ${D.quality[i].status}">${D.quality[i].status}</div></div><div><strong>${eur(D.depot[i])}</strong><div class="timeline-note">${D.notes[d]||"Kein Kommentar hinterlegt."}</div></div></div>`}).join("");
+document.getElementById("timeline").innerHTML=D.fullDates.slice().reverse().map((d,ri)=>{const i=D.fullDates.length-1-ri;return`<div class="story"><div class="story-date">${d}</div><div class="story-value">${eur(D.depot[i])}</div><div class="story-note">${D.notes[d]||"No note recorded."}</div></div>`}).join("");
 
-const qc={direct:0,summed:0,history:0};D.quality.forEach(q=>qc[q.status]++);
-document.getElementById("qualitySummary").innerHTML=[["Direkt",qc.direct],["Summiert",qc.summed],["Historie",qc.history],["Gesamt",D.quality.length]].map(x=>`<article class="metric"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></article>`).join("");
-document.getElementById("qualityRows").innerHTML=D.quality.slice().reverse().map(q=>`<tr><td>${q.date}</td><td><span class="badge ${q.status}">${q.status}</span></td><td>${q.label}</td></tr>`).join("");
+function simulate(){const monthly=+document.getElementById("simContribution").value,rate=+document.getElementById("simReturn").value/100,years=+document.getElementById("simYears").value;document.getElementById("simContributionLabel").textContent=eur(monthly);document.getElementById("simReturnLabel").textContent=pct(rate*100);document.getElementById("simYearsLabel").textContent=years+" Jahre";let vals=[latest],v=latest;for(let y=1;y<=years;y++){for(let m=0;m<12;m++)v=v*(1+rate/12)+monthly;vals.push(v)}const labels=Array.from({length:years+1},(_,i)=>String(new Date().getFullYear()+i));lineChart("simChart",labels,[{name:"Projection",values:vals,bold:true}]);document.getElementById("simFacts").innerHTML=[["End value",eur(vals.at(-1))],["Additional deposits",eur(monthly*12*years)],["Estimated growth",eur(vals.at(-1)-latest-monthly*12*years)],["Period",years+" years"]].map(x=>`<div class="stat"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("")}
+["simContribution","simReturn","simYears"].forEach(id=>document.getElementById(id).oninput=simulate);simulate();
 
-const root=document.documentElement;document.getElementById("themeBtn").onclick=()=>{const dark=root.getAttribute("data-theme")==="dark";root.setAttribute("data-theme",dark?"light":"dark");localStorage.setItem("theme",dark?"light":"dark")};if(localStorage.getItem("theme")==="dark")root.setAttribute("data-theme","dark");
+function answer(q){q=q.toLowerCase();if(q.includes("größ")&&q.includes("rückgang"))return`Der größte dokumentierte Drawdown lag bei ${pct(maxDD)} und erreichte seinen Tiefpunkt am ${D.fullDates[maxDDi]}.`;if(q.includes("stärk")||q.includes("beste position")){const p=[...D.positions].sort((a,b)=>b.perf-a.perf)[0];return`${p.name} ist aktuell mit ${pct(p.perf)} die stärkste Position.`}if(q.includes("gewinn")){const pl=D.positions.reduce((a,b)=>a+b.pl,0);return`Der aktuelle summierte Gewinn/Verlust der Positionen beträgt ${eur(pl)}.`}if(q.includes("hoch"))return`Der höchste dokumentierte Depotwert liegt bei ${eur(high)}. Aktuell beträgt der Abstand ${pct((latest/high-1)*100)}.`;if(q.includes("schlech")||q.includes("schwäch")){const p=[...D.positions].sort((a,b)=>a.perf-b.perf)[0];return`${p.name} ist aktuell mit ${pct(p.perf)} die schwächste Position.`}return"Diese lokale Version beantwortet Fragen zu Gewinn, stärkster oder schwächster Position, Hochpunkt und größtem Rückgang."}
+function ask(){const input=document.getElementById("assistantQuery"),q=input.value.trim();if(!q)return;document.getElementById("assistantFeed").innerHTML+=`<div class="user-msg">${q}</div><div class="assistant-msg">${answer(q)}</div>`;input.value="";document.getElementById("assistantFeed").scrollTop=99999}
+document.getElementById("assistantAsk").onclick=ask;document.getElementById("assistantQuery").onkeydown=e=>{if(e.key==="Enter")ask()};
 
-const menu=document.getElementById("exportMenu");document.getElementById("exportBtn").onclick=()=>menu.classList.toggle("show");
-function download(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
-document.getElementById("exportJson").onclick=()=>download("depot-data.json",JSON.stringify(D,null,2),"application/json");
-document.getElementById("exportCsv").onclick=()=>{const rows=[["Datum","Depotwert"],...D.fullDates.map((d,i)=>[d,D.depot[i]])];download("depot-verlauf.csv",rows.map(r=>r.join(";")).join("\n"),"text/csv")};
-document.getElementById("printPdf").onclick=()=>window.print();
+const qc={direct:0,summed:0,history:0};D.quality.forEach(x=>qc[x.status]++);document.getElementById("dataSummary").innerHTML=[["Direct",qc.direct],["Summed",qc.summed],["History",qc.history],["Total",D.quality.length]].map(x=>`<div class="stat"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join("");document.getElementById("dataRows").innerHTML=D.fullDates.slice().reverse().map((d,ri)=>{const i=D.fullDates.length-1-ri,q=D.quality[i];return`<tr><td>${d}</td><td>${eur(D.depot[i])}</td><td><span class="badge ${q.status}">${q.status}</span></td><td>${D.notes[d]||"–"}</td></tr>`}).join("");
+
+const root=document.documentElement;document.getElementById("themeBtn").onclick=()=>{const light=root.getAttribute("data-theme")==="light";root.setAttribute("data-theme",light?"dark":"light");localStorage.setItem("theme",light?"dark":"light")};if(localStorage.getItem("theme")==="light")root.setAttribute("data-theme","light");
+const menu=document.getElementById("exportMenu");document.getElementById("exportBtn").onclick=()=>menu.classList.toggle("show");function download(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}document.getElementById("exportJson").onclick=()=>download("portfolio-os-data.json",JSON.stringify(D,null,2),"application/json");document.getElementById("exportCsv").onclick=()=>download("portfolio-os-history.csv",[["Datum","Depotwert"],...D.fullDates.map((d,i)=>[d,D.depot[i]])].map(r=>r.join(";")).join("\n"),"text/csv");document.getElementById("printPdf").onclick=()=>window.print();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");

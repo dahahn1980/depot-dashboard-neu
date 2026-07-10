@@ -1,9 +1,9 @@
 {
-  "name": "Depot Dashboard",
-  "short_name": "Depot",
+  "name": "Portfolio OS",
+  "short_name": "PortfolioOS",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#eef2f7",
-  "theme_color": "#0b1020",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
   "icons": []
 }

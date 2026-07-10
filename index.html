@@ -3,139 +3,132 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
-<title>Depot Dashboard</title>
+<meta name="theme-color" content="#07111f">
+<title>Portfolio OS</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="style.css?v=5.0">
+<link rel="stylesheet" href="style.css?v=6.0">
 </head>
 <body>
-<header class="hero">
-  <div class="hero-inner">
-    <div>
-      <div class="eyebrow">Family Finanzen · Portfolio Intelligence</div>
-      <h1>Depot<span>Dashboard</span></h1>
-      <p>Entwicklung, Positionen, Sparpläne, Risiko und Datenqualität in einer Oberfläche.</p>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Portfolio<span>OS</span></div>
+    <nav>
+      <button class="side-link active" data-view="home">Overview</button>
+      <button class="side-link" data-view="portfolio">Portfolio</button>
+      <button class="side-link" data-view="positions">Positionen</button>
+      <button class="side-link" data-view="analysis">Analyse</button>
+      <button class="side-link" data-view="timeline">Timeline</button>
+      <button class="side-link" data-view="simulator">Simulation</button>
+      <button class="side-link" data-view="assistant">Assistant</button>
+      <button class="side-link" data-view="data">Daten</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="status-dot"></div>
+      <span>Stand <strong>10.07.2026</strong></span>
     </div>
-    <div class="hero-actions">
-      <button id="themeBtn" class="ghost-btn">Darstellung</button>
-      <button id="exportBtn" class="primary-btn">Export</button>
-    </div>
-  </div>
-</header>
+  </aside>
 
-<nav class="nav-shell">
-  <button class="nav-btn active" data-view="overview">Übersicht</button>
-  <button class="nav-btn" data-view="positions">Positionen</button>
-  <button class="nav-btn" data-view="savings">Sparpläne</button>
-  <button class="nav-btn" data-view="analysis">Analyse</button>
-  <button class="nav-btn" data-view="history">Historie</button>
-  <button class="nav-btn" data-view="quality">Datenqualität</button>
-</nav>
+  <main class="content">
+    <section class="view active" id="view-home">
+      <header class="topbar">
+        <div><div class="overline">Portfolio intelligence</div><h1>Good evening, Daniel.</h1></div>
+        <div class="top-actions"><button id="themeBtn" class="round">◐</button><button id="exportBtn" class="pill">Export</button></div>
+      </header>
 
-<main>
-<section class="view active" id="view-overview">
-  <section id="kpis" class="metric-grid"></section>
-  <section class="panel panel-hero">
-    <div class="panel-head">
-      <div><div class="section-kicker">Portfolio</div><h2>Gesamtentwicklung</h2></div>
-      <div class="range-switch" data-target="depotChart">
-        <button data-range="1m">1M</button><button data-range="3m">3M</button><button class="active" data-range="all">Gesamt</button>
-      </div>
-    </div>
-    <svg id="depotChart" class="chart chart-xl" viewBox="0 0 1100 420"></svg>
-    <div id="depotDetail" class="inline-detail"></div>
-  </section>
+      <section class="hero-value">
+        <div>
+          <div class="overline">Total portfolio value</div>
+          <div class="hero-number" id="heroValue"></div>
+          <div class="hero-change" id="heroChange"></div>
+        </div>
+        <div class="health-ring" id="healthRing">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" class="ring-bg"/>
+            <circle cx="60" cy="60" r="50" class="ring-fg" id="healthArc"/>
+          </svg>
+          <div><strong id="healthScore"></strong><span>Health</span></div>
+        </div>
+      </section>
 
-  <section class="two-col">
-    <article class="panel">
-      <div class="panel-head"><div><div class="section-kicker">Struktur</div><h2>Depotaufteilung</h2></div></div>
-      <svg id="donut" class="chart chart-lg" viewBox="0 0 520 360"></svg>
-      <div id="catLegend" class="legend"></div>
-    </article>
-    <article class="panel">
-      <div class="panel-head"><div><div class="section-kicker">Bewegung</div><h2>Gewinner & Verlierer</h2></div><span>seit letztem Screenshot</span></div>
-      <div id="ranking"></div>
-    </article>
-  </section>
+      <section class="glass hero-chart">
+        <div class="section-head"><div><span class="eyebrow">Performance</span><h2>Portfolio momentum</h2></div><div class="segmented" id="heroRange"><button data-range="1m">1M</button><button data-range="3m">3M</button><button class="active" data-range="all">All</button></div></div>
+        <svg id="heroChart" class="chart chart-hero" viewBox="0 0 1200 430"></svg>
+        <div id="heroPointInfo" class="point-info"></div>
+      </section>
 
-  <section class="panel">
-    <div class="panel-head"><div><div class="section-kicker">Positionen</div><h2>Performance seit Kauf</h2></div></div>
-    <svg id="perfChart" class="chart chart-lg" viewBox="0 0 1100 360"></svg>
-  </section>
-</section>
+      <section class="insight-strip" id="insightStrip"></section>
 
-<section class="view" id="view-positions">
-  <section class="panel">
-    <div class="panel-head">
-      <div><div class="section-kicker">Vergleich</div><h2>Hauptpositionen</h2></div>
-      <div class="range-switch" data-target="coreChart">
-        <button data-range="1m">1M</button><button data-range="3m">3M</button><button class="active" data-range="all">Gesamt</button>
-      </div>
-    </div>
-    <div class="tabs" id="coreTabs"></div>
-    <svg id="coreChart" class="chart chart-xl" viewBox="0 0 1100 420"></svg>
-    <div id="coreLegend" class="legend"></div>
-  </section>
-  <section id="positionCards" class="card-grid"></section>
-</section>
+      <section class="grid-2">
+        <article class="glass"><div class="section-head"><div><span class="eyebrow">Allocation</span><h2>Capital map</h2></div></div><div id="treemap" class="treemap"></div></article>
+        <article class="glass"><div class="section-head"><div><span class="eyebrow">Heatmap</span><h2>Weekly movement</h2></div></div><div id="heatmap" class="heatmap"></div></article>
+      </section>
+    </section>
 
-<section class="view" id="view-savings">
-  <section class="panel">
-    <div class="panel-head"><div><div class="section-kicker">Sparpläne</div><h2>Wertentwicklung vs. Einzahlungen</h2></div></div>
-    <div class="tabs" id="savingTabs"></div>
-    <svg id="savingsChart" class="chart chart-xl" viewBox="0 0 1100 420"></svg>
-    <div id="savingFacts" class="fact-grid"></div>
-  </section>
-</section>
+    <section class="view" id="view-portfolio">
+      <header class="topbar"><div><div class="overline">Portfolio</div><h1>Structure & contribution.</h1></div></header>
+      <section class="grid-2">
+        <article class="glass"><div class="section-head"><div><span class="eyebrow">Structure</span><h2>Asset allocation</h2></div></div><svg id="donut" class="chart" viewBox="0 0 560 380"></svg><div id="catLegend" class="legend"></div></article>
+        <article class="glass"><div class="section-head"><div><span class="eyebrow">Contribution</span><h2>Profit / loss</h2></div></div><svg id="plChart" class="chart" viewBox="0 0 720 380"></svg></article>
+      </section>
+      <section class="glass"><div class="section-head"><div><span class="eyebrow">Comparison</span><h2>Indexed performance</h2></div></div><div class="chips" id="positionChips"></div><svg id="compareChart" class="chart chart-wide" viewBox="0 0 1200 420"></svg></section>
+    </section>
 
-<section class="view" id="view-analysis">
-  <section class="two-col">
-    <article class="panel">
-      <div class="panel-head"><div><div class="section-kicker">Risiko</div><h2>Drawdown</h2></div></div>
-      <svg id="drawdownChart" class="chart chart-lg" viewBox="0 0 760 340"></svg>
-      <div id="drawdownFacts" class="fact-grid"></div>
-    </article>
-    <article class="panel">
-      <div class="panel-head"><div><div class="section-kicker">Monate</div><h2>Monatsentwicklung</h2></div></div>
-      <svg id="monthlyChart" class="chart chart-lg" viewBox="0 0 760 340"></svg>
-    </article>
-  </section>
-  <section class="two-col">
-    <article class="panel"><div class="panel-head"><div><div class="section-kicker">Beitrag</div><h2>Gewinn / Verlust</h2></div></div><svg id="plChart" class="chart chart-lg" viewBox="0 0 760 340"></svg></article>
-    <article class="panel"><div class="panel-head"><div><div class="section-kicker">Prüfung</div><h2>Datenchecks</h2></div></div><div id="checkList" class="check-list"></div></article>
-  </section>
-</section>
+    <section class="view" id="view-positions">
+      <header class="topbar"><div><div class="overline">Positions</div><h1>Every holding, one story.</h1></div></header>
+      <div id="positionGrid" class="position-grid"></div>
+    </section>
 
-<section class="view" id="view-history">
-  <section class="panel">
-    <div class="panel-head"><div><div class="section-kicker">Zeitachse</div><h2>Messpunkte & Notizen</h2></div></div>
-    <div id="historyTimeline" class="timeline"></div>
-  </section>
-</section>
+    <section class="view" id="view-analysis">
+      <header class="topbar"><div><div class="overline">Analysis</div><h1>Risk, resilience, rhythm.</h1></div></header>
+      <section class="grid-2">
+        <article class="glass"><div class="section-head"><div><span class="eyebrow">Risk</span><h2>Drawdown</h2></div></div><svg id="drawdownChart" class="chart" viewBox="0 0 720 360"></svg><div id="drawdownStats" class="stat-grid"></div></article>
+        <article class="glass"><div class="section-head"><div><span class="eyebrow">Monthly</span><h2>Returns rhythm</h2></div></div><svg id="monthlyChart" class="chart" viewBox="0 0 720 360"></svg></article>
+      </section>
+      <section class="glass"><div class="section-head"><div><span class="eyebrow">Quality</span><h2>Automated checks</h2></div></div><div id="checks" class="checks"></div></section>
+    </section>
 
-<section class="view" id="view-quality">
-  <section class="panel">
-    <div class="panel-head"><div><div class="section-kicker">Transparenz</div><h2>Datenqualität</h2></div></div>
-    <div id="qualitySummary" class="metric-grid metric-grid-small"></div>
-    <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Status</th><th>Quelle</th></tr></thead><tbody id="qualityRows"></tbody></table></div>
-  </section>
-</section>
-</main>
+    <section class="view" id="view-timeline">
+      <header class="topbar"><div><div class="overline">Timeline</div><h1>Your portfolio story.</h1></div></header>
+      <div id="timeline" class="storyline"></div>
+    </section>
 
-<div id="detailModal" class="modal" aria-hidden="true">
-  <div class="modal-card">
-    <button id="modalClose" class="modal-close">×</button>
-    <div id="modalContent"></div>
-  </div>
+    <section class="view" id="view-simulator">
+      <header class="topbar"><div><div class="overline">Simulation</div><h1>What happens next?</h1></div></header>
+      <section class="grid-2">
+        <article class="glass simulator-form">
+          <label>Zusätzliche Monatsrate <strong id="simContributionLabel">100 €</strong></label>
+          <input id="simContribution" type="range" min="0" max="1000" value="100" step="25">
+          <label>Erwartete Rendite <strong id="simReturnLabel">6 %</strong></label>
+          <input id="simReturn" type="range" min="0" max="12" value="6" step="0.5">
+          <label>Zeitraum <strong id="simYearsLabel">10 Jahre</strong></label>
+          <input id="simYears" type="range" min="1" max="25" value="10">
+          <div id="simFacts" class="stat-grid"></div>
+        </article>
+        <article class="glass"><svg id="simChart" class="chart chart-wide" viewBox="0 0 760 420"></svg></article>
+      </section>
+    </section>
+
+    <section class="view" id="view-assistant">
+      <header class="topbar"><div><div class="overline">Assistant</div><h1>Ask your portfolio.</h1></div></header>
+      <section class="assistant-panel">
+        <div id="assistantFeed" class="assistant-feed">
+          <div class="assistant-msg">Frag zum Beispiel: „Was war mein größter Rückgang?“, „Welche Position ist am stärksten?“ oder „Wie hoch ist mein aktueller Gewinn?“</div>
+        </div>
+        <div class="assistant-input"><input id="assistantQuery" placeholder="Frage zu deinem Depot …"><button id="assistantAsk">Ask</button></div>
+      </section>
+    </section>
+
+    <section class="view" id="view-data">
+      <header class="topbar"><div><div class="overline">Data</div><h1>Transparent by design.</h1></div></header>
+      <section class="glass"><div id="dataSummary" class="stat-grid"></div><div class="table-wrap"><table><thead><tr><th>Datum</th><th>Wert</th><th>Status</th><th>Notiz</th></tr></thead><tbody id="dataRows"></tbody></table></div></section>
+    </section>
+  </main>
 </div>
 
-<div id="exportMenu" class="export-menu">
-  <button id="exportCsv">CSV exportieren</button>
-  <button id="exportJson">JSON exportieren</button>
-  <button id="printPdf">Drucken / PDF</button>
-</div>
+<div id="drawer" class="drawer"><button id="drawerClose">×</button><div id="drawerBody"></div></div>
+<div id="exportMenu" class="export-menu"><button id="exportCsv">CSV</button><button id="exportJson">JSON</button><button id="printPdf">PDF / Drucken</button></div>
 
-<script src="data.js?v=5.0"></script>
-<script src="app.js?v=5.0"></script>
+<script src="data.js?v=6.0"></script>
+<script src="app.js?v=6.0"></script>
 </body>
 </html>
