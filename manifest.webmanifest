@@ -3,7 +3,7 @@
   "short_name": "Depot",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4f7fb",
-  "theme_color": "#172554",
+  "background_color": "#eef2f7",
+  "theme_color": "#0b1020",
   "icons": []
 }

@@ -1,8 +1,11 @@
-# Depot Dashboard V4.3
+# Depot Dashboard V5
 
-Fehlerbehebung:
-- Prüfung von `window.D` auf `typeof D === "undefined"` korrigiert.
-- `data.js` definiert `const D`; diese Variable ist im Browser nicht automatisch `window.D`.
-- Cache-Version auf 4.3 angehoben.
-
-Alle Dateien gemeinsam hochladen und ersetzen.
+Neu:
+- moderne, stärker typografische Oberfläche
+- Navigation nach Übersicht, Positionen, Sparplänen, Analyse, Historie und Datenqualität
+- Detailansicht je Wertpapier
+- Zeitraumfilter
+- automatische Datenchecks
+- Notizen pro Messpunkt
+- CSV-, JSON- und PDF/Druck-Export
+- interaktive Diagramme und Detailansichten
