@@ -1,0 +1,19 @@
+:root{--bg:#f4f7fb;--card:#fff;--ink:#111827;--muted:#6b7280;--navy:#172554;--blue:#2563eb;--green:#15803d;--red:#b91c1c;--line:#e5e7eb;--shadow:0 10px 30px rgba(23,37,84,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#172554,#1e3a8a);color:#fff;padding:26px 20px}
+.wrap{max-width:1320px;margin:auto}h1{margin:0;font-size:30px}.sub{opacity:.8;margin-top:6px}
+main{max-width:1320px;margin:18px auto;padding:0 16px 40px}
+.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:2fr 1fr}.twoequal{grid-template-columns:1fr 1fr}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px;overflow:hidden}
+.kpi .label{font-size:13px;color:var(--muted)}.kpi .value{font-size:27px;font-weight:800;margin-top:6px}.kpi .hint{font-size:12px;color:var(--muted);margin-top:8px}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.title h2{font-size:18px;margin:0}.small{font-size:12px;color:var(--muted)}
+svg{width:100%;display:block}.chart-lg{height:340px}.chart-md{height:300px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}.legend i{width:10px;height:10px;border-radius:999px;display:inline-block}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}button{border:0;background:#eef2ff;color:#3730a3;padding:9px 12px;border-radius:999px;font-weight:700;cursor:pointer}button.active{background:#1d4ed8;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left}th{font-size:12px;color:var(--muted);text-transform:uppercase}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}.badge.pos{background:#dcfce7}.badge.neg{background:#fee2e2}
+.bar{height:9px;background:#e8edf7;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:#2563eb}
+.note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.45}
+@media(max-width:950px){.kpis{grid-template-columns:repeat(2,1fr)}.two,.twoequal{grid-template-columns:1fr}}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}h1{font-size:24px}.card{padding:14px}.chart-lg{height:300px}.chart-md{height:280px}}
