@@ -1,4 +1,21 @@
 
+window.addEventListener("error", e => {
+  const box = document.createElement("div");
+  box.style.cssText = "position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:12px;padding:12px;font:14px system-ui";
+  box.textContent = "Dashboard-Fehler: " + (e.message || "Unbekannter Fehler") + ". Bitte data.js und app.js gemeinsam aktualisieren.";
+  document.body.appendChild(box);
+});
+
+if (!window.D) {
+  document.body.innerHTML = '<div style="padding:30px;font-family:system-ui">data.js wurde nicht geladen.</div>';
+  throw new Error("data.js fehlt oder wurde nicht geladen");
+}
+
+D.monthly = Array.isArray(D.monthly) ? D.monthly : [];
+D.weeklyChanges = Array.isArray(D.weeklyChanges) ? D.weeklyChanges : [];
+D.quality = Array.isArray(D.quality) ? D.quality : [];
+
+
 const C=["#2563eb","#7c3aed","#0891b2","#16a34a","#ea580c","#dc2626","#4f46e5","#0f766e"];
 const eur=v=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(v);
 const pct=v=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)+" %";
@@ -41,15 +58,16 @@ lineChart("depotChart",D.dates,[{name:"Depotwert",values:D.depot,bold:true}]);
 
 document.getElementById("weeklyKpis").innerHTML=[
  ["Depotveränderung",eur(lastDelta)],
- ["Monatsveränderung",eur(latest-D.monthly.at(-1).start)],
- ["Bester Wert",D.weeklyChanges[0].name],
- ["Schwächster Wert",D.weeklyChanges.at(-1).name]
+ ["Monatsveränderung",D.monthly.length?eur(latest-D.monthly.at(-1).start):"–"],
+ ["Bester Wert",D.weeklyChanges.length?D.weeklyChanges[0].name:"–"],
+ ["Schwächster Wert",D.weeklyChanges.length?D.weeklyChanges.at(-1).name:"–"]
 ].map(x=>`<div class="mini-card"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");
 
-document.getElementById("ranking").innerHTML=
- `<div class="rank-list">${D.weeklyChanges.slice(0,3).map((r,i)=>`<div class="rank-item"><span>${i+1}. ${r.name}</span><strong class="${r.change>=0?"pos":"neg"}">${eur(r.change)}</strong></div>`).join("")}
+document.getElementById("ranking").innerHTML = D.weeklyChanges.length
+ ? `<div class="rank-list">${D.weeklyChanges.slice(0,3).map((r,i)=>`<div class="rank-item"><span>${i+1}. ${r.name}</span><strong class="${r.change>=0?"pos":"neg"}">${eur(r.change)}</strong></div>`).join("")}
  <div style="height:8px"></div>
- ${D.weeklyChanges.slice(-3).reverse().map((r,i)=>`<div class="rank-item"><span>${i+1}. ${r.name}</span><strong class="${r.change>=0?"pos":"neg"}">${eur(r.change)}</strong></div>`).join("")}</div>`;
+ ${D.weeklyChanges.slice(-3).reverse().map((r,i)=>`<div class="rank-item"><span>${i+1}. ${r.name}</span><strong class="${r.change>=0?"pos":"neg"}">${eur(r.change)}</strong></div>`).join("")}</div>`
+ : '<p style="color:var(--muted)">Keine Wochenvergleichsdaten vorhanden.</p>';
 
 const normalized={};Object.entries(D.core).forEach(([k,v])=>normalized[k]=v.map(x=>x/v[0]*100));
 const names=Object.keys(normalized);
@@ -76,14 +94,14 @@ document.getElementById("savingTabs").innerHTML=sn.map((n,i)=>`<button class="${
 function drawSaving(i=0){const n=sn[i],v=D.savings[n],invested=D.contrib.at(-1),current=v.at(-1),gain=current-invested;lineChart("savingsChart",D.dates,[{name:n,values:v,bold:true},{name:"Einzahlungen",values:D.contrib}]);document.getElementById("savingFacts").innerHTML=[["Eingezahlt",eur(invested)],["Aktueller Wert",eur(current)],["Kursgewinn/-verlust",eur(gain)],["Rendite",pct(gain/invested*100)]].map(x=>`<div class="fact"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("")}
 drawSaving();document.querySelectorAll("#savingTabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#savingTabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawSaving(+b.dataset.i)});
 
-hbars("monthlyChart",D.monthly.map(m=>({name:m.month.slice(5)+"/"+m.month.slice(2,4),value:m.change})),"value",eur,true);
+if(D.monthly.length){hbars("monthlyChart",D.monthly.map(m=>({name:m.month.slice(5)+"/"+m.month.slice(2,4),value:m.change})),"value",eur,true)}else{document.getElementById("monthlyChart").outerHTML="<p style=\"color:var(--muted)\">Keine Monatsdaten vorhanden.</p>"}
 hbars("perfChart",D.positions,"perf",pct,true);
 hbars("plChart",D.positions,"pl",eur,true);
 
 function donut(){const svg=document.getElementById("donut"),cx=210,cy=155,r=100,sw=48,total=D.categories.reduce((a,b)=>a+b.value,0);let acc=0,out="";D.categories.forEach((c,i)=>{const f=c.value/total,len=2*Math.PI*r*f,off=-2*Math.PI*r*acc;out+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C[i]}" stroke-width="${sw}" stroke-dasharray="${len} ${2*Math.PI*r-len}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"><title>${c.name} · ${eur(c.value)} · ${pct(f*100)}</title></circle>`;acc+=f});out+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="var(--muted)" font-size="13">Depotwert</text><text x="${cx}" y="${cy+24}" text-anchor="middle" fill="var(--ink)" font-size="21" font-weight="800">${Math.round(total/1000)} Tsd. €</text>`;svg.innerHTML=out;document.getElementById("catLegend").innerHTML=D.categories.map((c,i)=>`<span><i style="background:${C[i]}"></i>${c.name} · ${pct(c.value/total*100)}</span>`).join("")}
 donut();
 
-const qCounts={direct:0,summed:0,history:0};D.quality.forEach(q=>qCounts[q.status]++);
+const qCounts={direct:0,summed:0,history:0};D.quality.forEach(q=>{if(qCounts[q.status]!==undefined)qCounts[q.status]++});
 document.getElementById("qualitySummary").innerHTML=[
  ["Direkte Screenshots",qCounts.direct],
  ["Summierte Werte",qCounts.summed],
