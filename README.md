@@ -1,12 +1,8 @@
-# Depot Dashboard V4
+# Depot Dashboard V4.3
 
-Neu umgesetzt:
-1. Entwicklung seit Kauf mit investiertem Kapital
-2. Wochenvergleich
-3. Einzelpositionskarten
-4. Gewinner-/Verlierer-Ranking
-5. Erweiterte Drawdown-Auswertung
-6. Monatsansicht
-7. Datenqualitätskennzeichnung
+Fehlerbehebung:
+- Prüfung von `window.D` auf `typeof D === "undefined"` korrigiert.
+- `data.js` definiert `const D`; diese Variable ist im Browser nicht automatisch `window.D`.
+- Cache-Version auf 4.3 angehoben.
 
-Upload aller Dateien ins Repository, anschließend GitHub Pages neu laden.
+Alle Dateien gemeinsam hochladen und ersetzen.

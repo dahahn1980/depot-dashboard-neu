@@ -6,7 +6,7 @@ window.addEventListener("error", e => {
   document.body.appendChild(box);
 });
 
-if (!window.D) {
+if (typeof D === "undefined") {
   document.body.innerHTML = '<div style="padding:30px;font-family:system-ui">data.js wurde nicht geladen.</div>';
   throw new Error("data.js fehlt oder wurde nicht geladen");
 }
@@ -31,6 +31,22 @@ document.getElementById("kpis").innerHTML=[
  ["Erholung seit Tief",eur(latest-low),pct((latest/low-1)*100)]
 ].map((x,i)=>`<article class="card kpi"><div class="label">${x[0]}</div><div class="value ${x[1].startsWith("-")?"neg":(i>0?"pos":"")}">${x[1]}</div><div class="hint">${x[2]}</div></article>`).join("");
 
+
+function showChartInfo(title, rows){
+  let panel=document.getElementById("chartInfoPanel");
+  if(!panel){
+    panel=document.createElement("div");
+    panel.id="chartInfoPanel";
+    panel.className="chart-info-panel";
+    panel.innerHTML='<div class="chart-info-head"><strong id="chartInfoTitle"></strong><button id="chartInfoClose">×</button></div><div id="chartInfoRows"></div>';
+    document.body.appendChild(panel);
+    document.getElementById("chartInfoClose").onclick=()=>panel.classList.remove("show");
+  }
+  document.getElementById("chartInfoTitle").textContent=title;
+  document.getElementById("chartInfoRows").innerHTML=rows.map(r=>`<div class="chart-info-row"><span>${r.label}</span><strong class="${r.className||""}">${r.value}</strong></div>`).join("");
+  panel.classList.add("show");
+}
+
 function lineChart(id,labels,series,{percent=false,zero=false}={}){
  const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:64,r:18,t:18,b:42};
  let vals=series.flatMap(s=>s.values),lo=Math.min(...vals),hi=Math.max(...vals);if(zero){lo=Math.min(lo,0);hi=Math.max(hi,0)}
@@ -39,15 +55,58 @@ function lineChart(id,labels,series,{percent=false,zero=false}={}){
  let out="";
  for(let i=0;i<5;i++){const v=lo+i*(hi-lo)/4,yy=y(v);out+=`<line x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}" stroke="var(--line)"/><text x="${p.l-8}" y="${yy+4}" text-anchor="end" fill="var(--muted)" font-size="10">${percent?pct(v):Math.round(v/1000)+"k"}</text>`}
  labels.forEach((d,i)=>{if(i===0||i===labels.length-1||i%3===0)out+=`<text x="${x(i)}" y="${H-14}" text-anchor="middle" fill="var(--muted)" font-size="10">${d}</text>`})
- series.forEach((s,si)=>{const points=s.values.map((v,i)=>`${x(i)},${y(v)}`).join(" ");out+=`<polyline points="${points}" fill="none" stroke="${C[si%C.length]}" stroke-width="${s.bold?3.4:2.4}"/>`;s.values.forEach((v,i)=>out+=`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="${C[si%C.length]}" stroke="white"><title>${s.name} · ${labels[i]} · ${percent?pct(v):eur(v)}</title></circle>`)});
+ series.forEach((s,si)=>{
+   const points=s.values.map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+   out+=`<polyline points="${points}" fill="none" stroke="${C[si%C.length]}" stroke-width="${s.bold?3.4:2.4}"/>`;
+   s.values.forEach((v,i)=>{
+     out+=`<circle class="chart-point" data-series="${si}" data-index="${i}" cx="${x(i)}" cy="${y(v)}" r="7" fill="transparent" stroke="transparent"></circle>`;
+     out+=`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="${C[si%C.length]}" stroke="white"></circle>`;
+   })
+ });
  svg.innerHTML=out;
+
+ svg.querySelectorAll(".chart-point").forEach(point=>{
+   point.addEventListener("click",()=>{
+     const si=+point.dataset.series, i=+point.dataset.index;
+     const s=series[si], value=s.values[i];
+     const prev=i>0?s.values[i-1]:null;
+     const change=prev!==null?value-prev:null;
+     const startValue=s.values[0];
+     const sinceStart=(value/startValue-1)*100;
+     const rows=[
+       {label:"Datum",value:labels[i]},
+       {label:"Wert",value:percent?pct(value):eur(value)},
+       {label:"Zum vorherigen Punkt",value:change===null?"–":(percent?pct(change):eur(change)),className:change===null?"":(change>=0?"pos":"neg")},
+       {label:"Seit Start",value:pct(sinceStart),className:sinceStart>=0?"pos":"neg"}
+     ];
+     showChartInfo(s.name,rows);
+   });
+ });
 }
+
 function hbars(id,rows,key,fmt,signed=false){
  const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:195,r:80,t:12,b:16},max=Math.max(...rows.map(r=>Math.abs(r[key]))),rh=(H-p.t-p.b)/rows.length;
  let out="";
- rows.forEach((r,i)=>{const y=p.t+i*rh+rh*.23,h=rh*.5,w=Math.abs(r[key])/max*(W-p.l-p.r),x=signed?(r[key]>=0?p.l:p.l-w):p.l,col=signed?(r[key]>=0?"#15803d":"#b91c1c"):"#2563eb";out+=`<text x="${p.l-8}" y="${y+h*.72}" text-anchor="end" fill="var(--ink)" font-size="11">${r.name}</text><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${col}"/><text x="${signed?(r[key]>=0?x+w+6:x-6):x+w+6}" y="${y+h*.72}" text-anchor="${signed&&r[key]<0?"end":"start"}" fill="var(--ink)" font-size="11">${fmt(r[key])}</text>`});
+ rows.forEach((r,i)=>{
+   const y=p.t+i*rh+rh*.23,h=rh*.5,w=Math.abs(r[key])/max*(W-p.l-p.r),x=signed?(r[key]>=0?p.l:p.l-w):p.l,col=signed?(r[key]>=0?"#15803d":"#b91c1c"):"#2563eb";
+   out+=`<text x="${p.l-8}" y="${y+h*.72}" text-anchor="end" fill="var(--ink)" font-size="11">${r.name}</text>`;
+   out+=`<rect class="bar-hit" data-index="${i}" x="${x}" y="${y-4}" width="${Math.max(w,12)}" height="${h+8}" rx="5" fill="transparent"></rect>`;
+   out+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${col}"/>`;
+   out+=`<text x="${signed?(r[key]>=0?x+w+6:x-6):x+w+6}" y="${y+h*.72}" text-anchor="${signed&&r[key]<0?"end":"start"}" fill="var(--ink)" font-size="11">${fmt(r[key])}</text>`;
+ });
  if(signed)out+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="var(--muted)"/>`;
  svg.innerHTML=out;
+
+ svg.querySelectorAll(".bar-hit").forEach(hit=>{
+   hit.addEventListener("click",()=>{
+     const r=rows[+hit.dataset.index];
+     showChartInfo(r.name,[
+       {label:"Wert",value:fmt(r[key]),className:signed?(r[key]>=0?"pos":"neg"):""},
+       ...(r.from!==undefined?[{label:"Von",value:eur(r.from)}]:[]),
+       ...(r.to!==undefined?[{label:"Bis",value:eur(r.to)}]:[])
+     ]);
+   });
+ });
 }
 function sparkline(values){
  const W=220,H=54,p=3,lo=Math.min(...values),hi=Math.max(...values),x=i=>p+i*(W-2*p)/(values.length-1),y=v=>p+(hi-v)*(H-2*p)/((hi-lo)||1);
@@ -98,7 +157,17 @@ if(D.monthly.length){hbars("monthlyChart",D.monthly.map(m=>({name:m.month.slice(
 hbars("perfChart",D.positions,"perf",pct,true);
 hbars("plChart",D.positions,"pl",eur,true);
 
-function donut(){const svg=document.getElementById("donut"),cx=210,cy=155,r=100,sw=48,total=D.categories.reduce((a,b)=>a+b.value,0);let acc=0,out="";D.categories.forEach((c,i)=>{const f=c.value/total,len=2*Math.PI*r*f,off=-2*Math.PI*r*acc;out+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C[i]}" stroke-width="${sw}" stroke-dasharray="${len} ${2*Math.PI*r-len}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"><title>${c.name} · ${eur(c.value)} · ${pct(f*100)}</title></circle>`;acc+=f});out+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="var(--muted)" font-size="13">Depotwert</text><text x="${cx}" y="${cy+24}" text-anchor="middle" fill="var(--ink)" font-size="21" font-weight="800">${Math.round(total/1000)} Tsd. €</text>`;svg.innerHTML=out;document.getElementById("catLegend").innerHTML=D.categories.map((c,i)=>`<span><i style="background:${C[i]}"></i>${c.name} · ${pct(c.value/total*100)}</span>`).join("")}
+function donut(){const svg=document.getElementById("donut"),cx=210,cy=155,r=100,sw=48,total=D.categories.reduce((a,b)=>a+b.value,0);let acc=0,out="";D.categories.forEach((c,i)=>{const f=c.value/total,len=2*Math.PI*r*f,off=-2*Math.PI*r*acc;out+=`<circle class="donut-segment" data-index="${i}" cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C[i]}" stroke-width="${sw}" stroke-dasharray="${len} ${2*Math.PI*r-len}" stroke-dashoffset="${off}" transform="rotate(-90 ${cx} ${cy})"><title>${c.name} · ${eur(c.value)} · ${pct(f*100)}</title></circle>`;acc+=f});out+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="var(--muted)" font-size="13">Depotwert</text><text x="${cx}" y="${cy+24}" text-anchor="middle" fill="var(--ink)" font-size="21" font-weight="800">${Math.round(total/1000)} Tsd. €</text>`;svg.innerHTML=out;document.getElementById("catLegend").innerHTML=D.categories.map((c,i)=>`<span><i style="background:${C[i]}"></i>${c.name} · ${pct(c.value/total*100)}</span>`).join("");
+ svg.querySelectorAll(".donut-segment").forEach(seg=>seg.addEventListener("click",()=>{
+   const c=D.categories[+seg.dataset.index];
+   const positions=D.positions.filter(p=>p.cat===c.name);
+   showChartInfo(c.name,[
+     {label:"Kategorie-Wert",value:eur(c.value)},
+     {label:"Depotanteil",value:pct(c.value/total*100)},
+     ...positions.map(p=>({label:p.name,value:eur(p.value)}))
+   ]);
+ }));
+}
 donut();
 
 const qCounts={direct:0,summed:0,history:0};D.quality.forEach(q=>{if(qCounts[q.status]!==undefined)qCounts[q.status]++});

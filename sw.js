@@ -1,5 +1,5 @@
-const CACHE="depot-v4-1";
-const ASSETS=["./","./index.html?v=4.1","./style.css?v=4.1","./app.js?v=4.1","./data.js?v=4.1","./manifest.webmanifest"];
+const CACHE="depot-v4-3";
+const ASSETS=["./","./index.html?v=4.3","./style.css?v=4.3","./app.js?v=4.3","./data.js?v=4.3","./manifest.webmanifest"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>k===CACHE?Promise.resolve():caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{
