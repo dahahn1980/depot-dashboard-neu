@@ -1,0 +1,9 @@
+{
+  "name": "Depot Dashboard",
+  "short_name": "Depot",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#172554",
+  "icons": []
+}
