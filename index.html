@@ -4,76 +4,209 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172554">
-<title>Depot Dashboard V4.6</title>
+<title>Depot Dashboard V5.3</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="style.css?v=4.6">
+<link rel="stylesheet" href="style.css?v=5.3">
 </head>
 <body>
 <header>
   <div class="topbar">
-    <div><div class="eyebrow">Family Finanzen</div><h1>Depot-Dashboard</h1><p>Entwicklung, Positionen und Sparpläne</p></div>
-    <button id="themeBtn" class="icon-btn" aria-label="Darstellung wechseln">◐</button>
+    <div><div class="eyebrow">Family Finanzen</div><h1>Depot-Dashboard</h1><p>Analyse, Strategie und Gewinnrealisierung</p></div>
+    <div class="header-actions">
+      <label class="learn-toggle"><input type="checkbox" id="learnMode" checked><span>Lernmodus</span></label>
+      <button id="themeBtn" class="icon-btn" aria-label="Darstellung wechseln">◐</button>
+    </div>
   </div>
+  <nav class="section-nav">
+    <button class="section-tab active" data-view="dashboard">Dashboard</button>
+    <button class="section-tab" data-view="strategy">Strategie</button>
+    <button class="section-tab" data-view="scenarios">Szenarien</button>
+    <button class="section-tab" data-view="goals">Ziele</button>
+    <button class="section-tab" data-view="journal">Tagebuch</button>
+  </nav>
 </header>
 
 <main class="app-layout">
   <div class="dashboard-main">
-    <section id="kpis" class="grid kpis"></section>
+    <section id="view-dashboard" class="view active">
+      <section id="kpis" class="grid kpis"></section>
 
-    <section class="grid split">
-      <article class="card">
-        <div class="card-head"><h2>Gesamtentwicklung</h2><span id="rangeLabel"></span></div>
-        <svg id="depotChart" class="chart tall" viewBox="0 0 920 360"></svg>
-      </article>
-      <article class="card">
-        <div class="card-head"><h2>Depotstruktur</h2><span>Aktueller Stand</span></div>
-        <svg id="donut" class="chart tall" viewBox="0 0 420 350"></svg>
-        <div id="catLegend" class="legend"></div>
-      </article>
+      <section class="grid split">
+        <article class="card">
+          <div class="card-head"><div><h2>Gesamtentwicklung</h2><span id="rangeLabel"></span></div><button class="explain-btn" data-explain="development">ⓘ</button></div>
+          <svg id="depotChart" class="chart tall" viewBox="0 0 920 360"></svg>
+          <div class="learn-box" data-learning="development"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Depotstruktur</h2><span>Aktueller Stand</span></div><button class="explain-btn" data-explain="allocation">ⓘ</button></div>
+          <svg id="donut" class="chart tall" viewBox="0 0 420 350"></svg>
+          <div id="catLegend" class="legend"></div>
+          <div class="learn-box" data-learning="allocation"></div>
+        </article>
+      </section>
+
+      <section class="grid split">
+        <article class="card"><div class="card-head"><div><h2>Wochenvergleich</h2><span>Seit letztem Screenshot</span></div><button class="explain-btn" data-explain="weekly">ⓘ</button></div><div id="weeklyKpis" class="mini-grid"></div><div class="learn-box" data-learning="weekly"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Gewinner & Verlierer</h2><span>Seit letztem Screenshot</span></div><button class="explain-btn" data-explain="ranking">ⓘ</button></div><div id="ranking"></div><div class="learn-box" data-learning="ranking"></div></article>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Hauptpositionen im Vergleich</h2><span>Indexiert auf 100</span></div><button class="explain-btn" data-explain="indexed">ⓘ</button></div>
+        <div class="tabs" id="coreTabs"></div>
+        <svg id="coreChart" class="chart tall" viewBox="0 0 1100 360"></svg>
+        <div id="coreLegend" class="legend"></div>
+        <div class="learn-box" data-learning="indexed"></div>
+      </section>
+
+      <section class="grid split">
+        <article class="card"><div class="card-head"><div><h2>Einzelpositionen</h2><span>Antippen für Details</span></div><button class="explain-btn" data-explain="positions">ⓘ</button></div><div id="positionCards" class="position-grid"></div><div class="learn-box" data-learning="positions"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Drawdown</h2><span>Abstand zum bisherigen Hoch</span></div><button class="explain-btn" data-explain="drawdown">ⓘ</button></div><svg id="drawdownChart" class="chart" viewBox="0 0 760 300"></svg><div id="drawdownFacts" class="fact-grid"></div><div class="learn-box" data-learning="drawdown"></div></article>
+      </section>
+
+      <section class="grid split">
+        <article class="card"><div class="card-head"><div><h2>Sparpläne</h2><span>Einzahlung, Wert und Kursgewinn</span></div><button class="explain-btn" data-explain="savings">ⓘ</button></div><div class="tabs" id="savingTabs"></div><svg id="savingsChart" class="chart" viewBox="0 0 760 320"></svg><div id="savingFacts" class="fact-grid"></div><div class="learn-box" data-learning="savings"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Monatsentwicklung</h2><span>Monatsanfang bis letzter Messpunkt</span></div><button class="explain-btn" data-explain="monthly">ⓘ</button></div><svg id="monthlyChart" class="chart" viewBox="0 0 650 320"></svg><div class="learn-box" data-learning="monthly"></div></article>
+      </section>
     </section>
 
-    <section class="grid split">
-      <article class="card"><div class="card-head"><h2>Wochenvergleich</h2><span>Seit letztem Screenshot</span></div><div id="weeklyKpis" class="mini-grid"></div></article>
-      <article class="card"><div class="card-head"><h2>Gewinner & Verlierer</h2><span>Seit letztem Screenshot</span></div><div id="ranking"></div></article>
+    <section id="view-strategy" class="view">
+      <section class="strategy-hero">
+        <div><div class="eyebrow blue">Wealth Intelligence 5.3</div><h2>Gewinne verstehen.<br>Entnahmen simulieren.</h2><p>Die Berechnungen sind Entscheidungshilfen, keine Steuer- oder Anlageberatung. Alle Annahmen können angepasst werden.</p></div>
+        <div id="profitAccountHero" class="profit-account"></div>
+      </section>
+
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Gewinnkonto</h2><span>Buchgewinn vor Verkauf</span></div><button class="explain-btn" data-explain="profitAccount">ⓘ</button></div>
+          <div id="profitAccount"></div>
+          <div class="learn-box" data-learning="profitAccount"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Steuerannahmen</h2><span>Für alle Simulationen</span></div><button class="explain-btn" data-explain="tax">ⓘ</button></div>
+          <div id="taxSettings" class="settings-grid"></div>
+          <div class="learn-box" data-learning="tax"></div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Gewinnmitnahme-Simulator</h2><span>Teilverkauf proportional über ausgewählte Positionen</span></div><button class="explain-btn" data-explain="sale">ⓘ</button></div>
+        <div class="control-row">
+          <label>Verkaufsanteil <strong id="salePctLabel">25 %</strong></label>
+          <input id="salePct" type="range" min="0" max="100" step="5" value="25">
+        </div>
+        <div id="salePositionPicker" class="position-picker"></div>
+        <div id="saleSummary" class="simulation-summary"></div>
+        <div class="table-wrap"><table><thead><tr><th>Position</th><th>Bruttoerlös</th><th>realisierter Gewinn</th><th>Steuer</th><th>Nettozufluss</th><th>Restwert</th></tr></thead><tbody id="saleRows"></tbody></table></div>
+        <div class="learn-box" data-learning="sale"></div>
+      </section>
+
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Cash-Generator</h2><span>Gewünschte Liquidität</span></div><button class="explain-btn" data-explain="cash">ⓘ</button></div>
+          <div class="input-line"><label>Netto-Auszahlungsziel</label><input id="cashTarget" type="number" min="0" step="500" value="10000"></div>
+          <div class="tabs" id="cashStrategy"><button class="active" data-mode="gain">Gewinne sichern</button><button data-mode="balanced">Struktur erhalten</button><button data-mode="risk">Risiko reduzieren</button></div>
+          <div id="cashResult"></div>
+          <div class="learn-box" data-learning="cash"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Gewinnschutz</h2><span>Was bleibt nach einer Korrektur?</span></div><button class="explain-btn" data-explain="protection">ⓘ</button></div>
+          <div class="control-row"><label>Simulierter Rückgang <strong id="protectionLabel">−10 %</strong></label><input id="protectionDrop" type="range" min="0" max="30" step="1" value="10"></div>
+          <div id="protectionGrid" class="protection-grid"></div>
+          <div class="learn-box" data-learning="protection"></div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Rebalancing-Assistent</h2><span>Gewinne sichern und Konzentration reduzieren</span></div><button class="explain-btn" data-explain="rebalance">ⓘ</button></div>
+        <div id="rebalanceResult"></div>
+        <div class="learn-box" data-learning="rebalance"></div>
+      </section>
     </section>
 
-    <section class="card">
-      <div class="card-head"><h2>Hauptpositionen im Vergleich</h2><span>Indexiert auf 100</span></div>
-      <div class="tabs" id="coreTabs"></div>
-      <svg id="coreChart" class="chart tall" viewBox="0 0 1100 360"></svg>
-      <div id="coreLegend" class="legend"></div>
+    <section id="view-scenarios" class="view">
+      <section class="page-title"><div class="eyebrow blue">Szenario-Labor</div><h2>Keine Prognose.<br>Kontrollierte Annahmen.</h2></section>
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Marktszenarien</h2><span>Einheitliche Veränderung aller Positionen</span></div><button class="explain-btn" data-explain="marketScenario">ⓘ</button></div>
+          <div id="scenarioButtons" class="scenario-buttons"></div>
+          <div id="scenarioSummary"></div>
+          <svg id="scenarioChart" class="chart" viewBox="0 0 720 320"></svg>
+          <div class="learn-box" data-learning="marketScenario"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Zukunftssimulation</h2><span>Sparrate und Renditeannahme</span></div><button class="explain-btn" data-explain="future">ⓘ</button></div>
+          <div class="control-stack">
+            <label>Zusätzliche Monatsrate <strong id="futureSavingLabel">150 €</strong></label><input id="futureSaving" type="range" min="0" max="1000" step="25" value="150">
+            <label>Renditeannahme p. a. <strong id="futureReturnLabel">5,0 %</strong></label><input id="futureReturn" type="range" min="-5" max="12" step="0.5" value="5">
+            <label>Zeitraum <strong id="futureYearsLabel">10 Jahre</strong></label><input id="futureYears" type="range" min="1" max="25" step="1" value="10">
+          </div>
+          <div id="futureFacts" class="fact-grid"></div>
+          <svg id="futureChart" class="chart" viewBox="0 0 720 320"></svg>
+          <div class="learn-box" data-learning="future"></div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><div><h2>Vereinfachte Monte-Carlo-Spanne</h2><span>Bandbreite statt punktgenauer Vorhersage</span></div><button class="explain-btn" data-explain="monteCarlo">ⓘ</button></div>
+        <div class="control-row"><label>Angenommene Volatilität <strong id="volLabel">10 %</strong></label><input id="volatility" type="range" min="3" max="25" step="1" value="10"></div>
+        <div id="mcFacts" class="fact-grid"></div>
+        <svg id="mcChart" class="chart tall" viewBox="0 0 1100 360"></svg>
+        <div class="learn-box" data-learning="monteCarlo"></div>
+      </section>
     </section>
 
-    <section class="grid split">
-      <article class="card"><div class="card-head"><h2>Einzelpositionen</h2><span>Antippen für Details rechts</span></div><div id="positionCards" class="position-grid"></div></article>
-      <article class="card"><div class="card-head"><h2>Drawdown</h2><span>Abstand zum bisherigen Hoch</span></div><svg id="drawdownChart" class="chart" viewBox="0 0 760 300"></svg><div id="drawdownFacts" class="fact-grid"></div></article>
+    <section id="view-goals" class="view">
+      <section class="page-title"><div class="eyebrow blue">Zielmonitor</div><h2>Gewinne bekommen<br>einen Zweck.</h2></section>
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Depotziel</h2><span>Fortschritt zum Zielwert</span></div><button class="explain-btn" data-explain="portfolioGoal">ⓘ</button></div>
+          <div class="input-line"><label>Zielwert</label><input id="portfolioTarget" type="number" step="5000" value="150000"></div>
+          <div id="portfolioGoal"></div><div class="learn-box" data-learning="portfolioGoal"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Gewinnziel</h2><span>Buchgewinn vor Steuern</span></div><button class="explain-btn" data-explain="profitGoal">ⓘ</button></div>
+          <div class="input-line"><label>Zielgewinn</label><input id="profitTarget" type="number" step="1000" value="10000"></div>
+          <div id="profitGoal"></div><div class="learn-box" data-learning="profitGoal"></div>
+        </article>
+      </section>
+
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Portfolio Health Score</h2><span>Transparenter Orientierungswert</span></div><button class="explain-btn" data-explain="health">ⓘ</button></div>
+          <div id="healthScore"></div><div class="learn-box" data-learning="health"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Alltagsbezug</h2><span>Was könnte der Nettogewinn finanzieren?</span></div><button class="explain-btn" data-explain="lifeGoals">ⓘ</button></div>
+          <div class="settings-grid">
+            <div class="input-line"><label>Monatliche Kreditrate</label><input id="creditRate" type="number" value="1450"></div>
+            <div class="input-line"><label>Familienurlaub</label><input id="holidayCost" type="number" value="3000"></div>
+          </div>
+          <div id="lifeGoals"></div><div class="learn-box" data-learning="lifeGoals"></div>
+        </article>
+      </section>
     </section>
 
-    <section class="grid split">
-      <article class="card"><div class="card-head"><h2>Sparpläne</h2><span>Einzahlung, Wert und Kursgewinn</span></div><div class="tabs" id="savingTabs"></div><svg id="savingsChart" class="chart" viewBox="0 0 760 320"></svg><div id="savingFacts" class="fact-grid"></div></article>
-      <article class="card"><div class="card-head"><h2>Monatsentwicklung</h2><span>Monatsanfang bis letzter Messpunkt</span></div><svg id="monthlyChart" class="chart" viewBox="0 0 650 320"></svg></article>
+    <section id="view-journal" class="view">
+      <section class="page-title"><div class="eyebrow blue">Portfolio-Tagebuch</div><h2>Die Geschichte<br>hinter den Zahlen.</h2></section>
+      <section class="card">
+        <div class="card-head"><div><h2>Chronik</h2><span>Automatisch aus Messpunkten erstellt</span></div><button class="explain-btn" data-explain="journal">ⓘ</button></div>
+        <div id="journalTimeline" class="journal-timeline"></div>
+        <div class="learn-box" data-learning="journal"></div>
+      </section>
     </section>
-
-    <section class="grid split">
-      <article class="card"><div class="card-head"><h2>Performance je Position</h2><span>Seit Kauf / Sparplanstart</span></div><svg id="perfChart" class="chart" viewBox="0 0 650 320"></svg></article>
-      <article class="card"><div class="card-head"><h2>Beitrag zum Gesamtergebnis</h2><span>Gewinn / Verlust in Euro</span></div><svg id="plChart" class="chart" viewBox="0 0 650 320"></svg></article>
-    </section>
-
-    <section class="card"><div class="card-head"><h2>Datenqualität</h2><span>Nachvollziehbarkeit der Messpunkte</span></div><div id="qualitySummary" class="mini-grid"></div><div class="table-wrap"><table><thead><tr><th>Datum</th><th>Status</th><th>Quelle</th></tr></thead><tbody id="qualityRows"></tbody></table></div></section>
-
-    <section class="card"><div class="card-head"><h2>Positionen im Detail</h2><span id="lastUpdate"></span></div><div class="table-wrap"><table><thead><tr><th>Wertpapier</th><th>Kategorie</th><th>Investiert</th><th>Aktueller Wert</th><th>G/V</th><th>Performance</th><th>Anteil</th></tr></thead><tbody id="positionRows"></tbody></table></div></section>
   </div>
 
   <aside id="insightPanel" class="insight-panel">
     <div class="insight-sticky">
-      <div class="insight-head"><div><span id="insightType" class="insight-type">Portfolio Insight</span><h2 id="insightTitle">Gesamtübersicht</h2></div><div class="insight-actions"><button id="insightReset" class="reset-btn" title="Zur Gesamtübersicht">↺</button><button id="insightClose" class="close-btn" title="Insight-Leiste schließen">×</button></div></div>
+      <div class="insight-head"><div><span id="insightType" class="insight-type">Portfolio Insight</span><h2 id="insightTitle">Gesamtübersicht</h2></div><div class="insight-actions"><button id="insightReset" class="reset-btn">↺</button><button id="insightClose" class="close-btn">×</button></div></div>
       <div id="insightBody" class="insight-body"></div>
     </div>
   </aside>
 </main>
-<button id="insightLauncher" class="insight-launcher" aria-label="Insight-Leiste öffnen">Insights</button>
 
-<script src="data.js?v=4.6"></script>
-<script src="app.js?v=4.6"></script>
+<button id="insightLauncher" class="insight-launcher">Insights</button>
+
+<script src="data.js?v=5.3"></script>
+<script src="app.js?v=5.3"></script>
 </body>
 </html>
