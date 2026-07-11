@@ -3,132 +3,133 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07111f">
-<title>Portfolio OS</title>
+<meta name="theme-color" content="#f5f2ea">
+<title>Portfolio OS 2026</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="style.css?v=6.0">
+<link rel="stylesheet" href="style.css?v=2026.0">
 </head>
 <body>
-<div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand">Portfolio<span>OS</span></div>
-    <nav>
-      <button class="side-link active" data-view="home">Overview</button>
-      <button class="side-link" data-view="portfolio">Portfolio</button>
-      <button class="side-link" data-view="positions">Positionen</button>
-      <button class="side-link" data-view="analysis">Analyse</button>
-      <button class="side-link" data-view="timeline">Timeline</button>
-      <button class="side-link" data-view="simulator">Simulation</button>
-      <button class="side-link" data-view="assistant">Assistant</button>
-      <button class="side-link" data-view="data">Daten</button>
-    </nav>
-    <div class="sidebar-foot">
-      <div class="status-dot"></div>
-      <span>Stand <strong>10.07.2026</strong></span>
-    </div>
-  </aside>
+<div class="noise"></div>
 
-  <main class="content">
-    <section class="view active" id="view-home">
-      <header class="topbar">
-        <div><div class="overline">Portfolio intelligence</div><h1>Good evening, Daniel.</h1></div>
-        <div class="top-actions"><button id="themeBtn" class="round">◐</button><button id="exportBtn" class="pill">Export</button></div>
-      </header>
+<header class="masthead">
+  <a class="wordmark" href="#overview">PORTFOLIO <span>OS</span></a>
+  <nav class="main-nav">
+    <button class="nav-item active" data-view="overview">Übersicht</button>
+    <button class="nav-item" data-view="holdings">Positionen</button>
+    <button class="nav-item" data-view="story">Historie</button>
+    <button class="nav-item" data-view="insights">Insights</button>
+  </nav>
+  <button class="menu-button" id="exportBtn">Export</button>
+</header>
 
-      <section class="hero-value">
+<main>
+  <section class="view active" id="view-overview">
+    <section class="editorial-hero">
+      <div class="hero-copy">
+        <div class="kicker">Family finances · 2026</div>
+        <h1>Dein Vermögen.<br><em>Auf einen Blick.</em></h1>
+        <p class="hero-lead">Eine ruhige, visuelle Zusammenfassung deines Depots – aktualisiert aus deinen regelmäßigen Screenshots.</p>
+      </div>
+
+      <div class="hero-value-block">
+        <span class="hero-label">Gesamtwert</span>
+        <strong id="heroValue">–</strong>
+        <div id="heroDelta" class="hero-delta">–</div>
+        <div class="hero-meta">
+          <span>Stand <b id="heroDate">–</b></span>
+          <span>Messpunkte <b id="heroPoints">–</b></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-stage">
+      <div class="stage-head">
         <div>
-          <div class="overline">Total portfolio value</div>
-          <div class="hero-number" id="heroValue"></div>
-          <div class="hero-change" id="heroChange"></div>
+          <span class="section-no">01</span>
+          <h2>Gesamtentwicklung</h2>
         </div>
-        <div class="health-ring" id="healthRing">
-          <svg viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="50" class="ring-bg"/>
-            <circle cx="60" cy="60" r="50" class="ring-fg" id="healthArc"/>
-          </svg>
-          <div><strong id="healthScore"></strong><span>Health</span></div>
+        <div class="period-switch" id="periodSwitch">
+          <button data-range="1m">1M</button>
+          <button data-range="3m">3M</button>
+          <button data-range="all" class="active">Gesamt</button>
         </div>
-      </section>
-
-      <section class="glass hero-chart">
-        <div class="section-head"><div><span class="eyebrow">Performance</span><h2>Portfolio momentum</h2></div><div class="segmented" id="heroRange"><button data-range="1m">1M</button><button data-range="3m">3M</button><button class="active" data-range="all">All</button></div></div>
-        <svg id="heroChart" class="chart chart-hero" viewBox="0 0 1200 430"></svg>
-        <div id="heroPointInfo" class="point-info"></div>
-      </section>
-
-      <section class="insight-strip" id="insightStrip"></section>
-
-      <section class="grid-2">
-        <article class="glass"><div class="section-head"><div><span class="eyebrow">Allocation</span><h2>Capital map</h2></div></div><div id="treemap" class="treemap"></div></article>
-        <article class="glass"><div class="section-head"><div><span class="eyebrow">Heatmap</span><h2>Weekly movement</h2></div></div><div id="heatmap" class="heatmap"></div></article>
-      </section>
+      </div>
+      <svg id="heroChart" viewBox="0 0 1200 520" class="hero-chart"></svg>
+      <div id="chartReadout" class="chart-readout">
+        <div><span>Datum</span><strong>Tippe auf einen Punkt</strong></div>
+        <div><span>Depotwert</span><strong>–</strong></div>
+        <div><span>Veränderung</span><strong>–</strong></div>
+        <div><span>Seit Start</span><strong>–</strong></div>
+      </div>
     </section>
 
-    <section class="view" id="view-portfolio">
-      <header class="topbar"><div><div class="overline">Portfolio</div><h1>Structure & contribution.</h1></div></header>
-      <section class="grid-2">
-        <article class="glass"><div class="section-head"><div><span class="eyebrow">Structure</span><h2>Asset allocation</h2></div></div><svg id="donut" class="chart" viewBox="0 0 560 380"></svg><div id="catLegend" class="legend"></div></article>
-        <article class="glass"><div class="section-head"><div><span class="eyebrow">Contribution</span><h2>Profit / loss</h2></div></div><svg id="plChart" class="chart" viewBox="0 0 720 380"></svg></article>
-      </section>
-      <section class="glass"><div class="section-head"><div><span class="eyebrow">Comparison</span><h2>Indexed performance</h2></div></div><div class="chips" id="positionChips"></div><svg id="compareChart" class="chart chart-wide" viewBox="0 0 1200 420"></svg></section>
-    </section>
+    <section class="metric-ribbon" id="metricRibbon"></section>
 
-    <section class="view" id="view-positions">
-      <header class="topbar"><div><div class="overline">Positions</div><h1>Every holding, one story.</h1></div></header>
-      <div id="positionGrid" class="position-grid"></div>
-    </section>
-
-    <section class="view" id="view-analysis">
-      <header class="topbar"><div><div class="overline">Analysis</div><h1>Risk, resilience, rhythm.</h1></div></header>
-      <section class="grid-2">
-        <article class="glass"><div class="section-head"><div><span class="eyebrow">Risk</span><h2>Drawdown</h2></div></div><svg id="drawdownChart" class="chart" viewBox="0 0 720 360"></svg><div id="drawdownStats" class="stat-grid"></div></article>
-        <article class="glass"><div class="section-head"><div><span class="eyebrow">Monthly</span><h2>Returns rhythm</h2></div></div><svg id="monthlyChart" class="chart" viewBox="0 0 720 360"></svg></article>
-      </section>
-      <section class="glass"><div class="section-head"><div><span class="eyebrow">Quality</span><h2>Automated checks</h2></div></div><div id="checks" class="checks"></div></section>
-    </section>
-
-    <section class="view" id="view-timeline">
-      <header class="topbar"><div><div class="overline">Timeline</div><h1>Your portfolio story.</h1></div></header>
-      <div id="timeline" class="storyline"></div>
-    </section>
-
-    <section class="view" id="view-simulator">
-      <header class="topbar"><div><div class="overline">Simulation</div><h1>What happens next?</h1></div></header>
-      <section class="grid-2">
-        <article class="glass simulator-form">
-          <label>Zusätzliche Monatsrate <strong id="simContributionLabel">100 €</strong></label>
-          <input id="simContribution" type="range" min="0" max="1000" value="100" step="25">
-          <label>Erwartete Rendite <strong id="simReturnLabel">6 %</strong></label>
-          <input id="simReturn" type="range" min="0" max="12" value="6" step="0.5">
-          <label>Zeitraum <strong id="simYearsLabel">10 Jahre</strong></label>
-          <input id="simYears" type="range" min="1" max="25" value="10">
-          <div id="simFacts" class="stat-grid"></div>
-        </article>
-        <article class="glass"><svg id="simChart" class="chart chart-wide" viewBox="0 0 760 420"></svg></article>
-      </section>
-    </section>
-
-    <section class="view" id="view-assistant">
-      <header class="topbar"><div><div class="overline">Assistant</div><h1>Ask your portfolio.</h1></div></header>
-      <section class="assistant-panel">
-        <div id="assistantFeed" class="assistant-feed">
-          <div class="assistant-msg">Frag zum Beispiel: „Was war mein größter Rückgang?“, „Welche Position ist am stärksten?“ oder „Wie hoch ist mein aktueller Gewinn?“</div>
+    <section class="split-layout">
+      <article class="editorial-panel allocation-panel">
+        <div class="panel-title">
+          <span class="section-no">02</span>
+          <h2>Kapitalstruktur</h2>
         </div>
-        <div class="assistant-input"><input id="assistantQuery" placeholder="Frage zu deinem Depot …"><button id="assistantAsk">Ask</button></div>
-      </section>
-    </section>
+        <div id="allocationBars" class="allocation-bars"></div>
+      </article>
 
-    <section class="view" id="view-data">
-      <header class="topbar"><div><div class="overline">Data</div><h1>Transparent by design.</h1></div></header>
-      <section class="glass"><div id="dataSummary" class="stat-grid"></div><div class="table-wrap"><table><thead><tr><th>Datum</th><th>Wert</th><th>Status</th><th>Notiz</th></tr></thead><tbody id="dataRows"></tbody></table></div></section>
+      <article class="editorial-panel pulse-panel">
+        <div class="panel-title">
+          <span class="section-no">03</span>
+          <h2>Wochenpuls</h2>
+        </div>
+        <div id="weeklyPulse" class="pulse-grid"></div>
+      </article>
     </section>
-  </main>
+  </section>
+
+  <section class="view" id="view-holdings">
+    <section class="page-intro">
+      <div class="kicker">All holdings</div>
+      <h1>Jede Position<br><em>erzählt ihre Geschichte.</em></h1>
+    </section>
+    <section id="holdingGrid" class="holding-grid"></section>
+  </section>
+
+  <section class="view" id="view-story">
+    <section class="page-intro">
+      <div class="kicker">Chronik</div>
+      <h1>Von Februar<br><em>bis heute.</em></h1>
+    </section>
+    <section id="storyRail" class="story-rail"></section>
+  </section>
+
+  <section class="view" id="view-insights">
+    <section class="page-intro">
+      <div class="kicker">Automatische Einordnung</div>
+      <h1>Was die Zahlen<br><em>wirklich sagen.</em></h1>
+    </section>
+    <section id="insightCards" class="insight-cards"></section>
+
+    <section class="sparplan-feature">
+      <div>
+        <div class="kicker">Sparplan</div>
+        <h2>150 € monatlich.<br>Drei Themen.</h2>
+        <p>Je 50 € fließen in künstliche Intelligenz, Security und industrielle Technologien.</p>
+      </div>
+      <div id="sparplanVisual" class="sparplan-visual"></div>
+    </section>
+  </section>
+</main>
+
+<aside id="detailPanel" class="detail-panel" aria-hidden="true">
+  <button id="detailClose" class="detail-close">Schließen</button>
+  <div id="detailContent"></div>
+</aside>
+
+<div id="exportMenu" class="export-menu">
+  <button id="exportCsv">CSV exportieren</button>
+  <button id="exportJson">JSON exportieren</button>
+  <button id="printPdf">Drucken / PDF</button>
 </div>
 
-<div id="drawer" class="drawer"><button id="drawerClose">×</button><div id="drawerBody"></div></div>
-<div id="exportMenu" class="export-menu"><button id="exportCsv">CSV</button><button id="exportJson">JSON</button><button id="printPdf">PDF / Drucken</button></div>
-
-<script src="data.js?v=6.0"></script>
-<script src="app.js?v=6.0"></script>
+<script src="data.js?v=2026.0"></script>
+<script src="app.js?v=2026.0"></script>
 </body>
 </html>
