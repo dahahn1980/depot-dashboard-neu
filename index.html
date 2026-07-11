@@ -3,133 +3,115 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f2ea">
-<title>Portfolio OS 2026</title>
+<meta name="theme-color" content="#172554">
+<title>Depot Dashboard</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="style.css?v=2026.0">
+<link rel="stylesheet" href="style.css?v=4.3">
 </head>
 <body>
-<div class="noise"></div>
-
-<header class="masthead">
-  <a class="wordmark" href="#overview">PORTFOLIO <span>OS</span></a>
-  <nav class="main-nav">
-    <button class="nav-item active" data-view="overview">Übersicht</button>
-    <button class="nav-item" data-view="holdings">Positionen</button>
-    <button class="nav-item" data-view="story">Historie</button>
-    <button class="nav-item" data-view="insights">Insights</button>
-  </nav>
-  <button class="menu-button" id="exportBtn">Export</button>
+<header>
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Family Finanzen</div>
+      <h1>Depot-Dashboard</h1>
+      <p>Entwicklung, Beiträge, Sparpläne und Datenqualität</p>
+    </div>
+    <button id="themeBtn" class="icon-btn">◐</button>
+  </div>
 </header>
 
 <main>
-  <section class="view active" id="view-overview">
-    <section class="editorial-hero">
-      <div class="hero-copy">
-        <div class="kicker">Family finances · 2026</div>
-        <h1>Dein Vermögen.<br><em>Auf einen Blick.</em></h1>
-        <p class="hero-lead">Eine ruhige, visuelle Zusammenfassung deines Depots – aktualisiert aus deinen regelmäßigen Screenshots.</p>
-      </div>
+  <section id="kpis" class="grid kpis"></section>
 
-      <div class="hero-value-block">
-        <span class="hero-label">Gesamtwert</span>
-        <strong id="heroValue">–</strong>
-        <div id="heroDelta" class="hero-delta">–</div>
-        <div class="hero-meta">
-          <span>Stand <b id="heroDate">–</b></span>
-          <span>Messpunkte <b id="heroPoints">–</b></span>
-        </div>
-      </div>
-    </section>
-
-    <section class="chart-stage">
-      <div class="stage-head">
-        <div>
-          <span class="section-no">01</span>
-          <h2>Gesamtentwicklung</h2>
-        </div>
-        <div class="period-switch" id="periodSwitch">
-          <button data-range="1m">1M</button>
-          <button data-range="3m">3M</button>
-          <button data-range="all" class="active">Gesamt</button>
-        </div>
-      </div>
-      <svg id="heroChart" viewBox="0 0 1200 520" class="hero-chart"></svg>
-      <div id="chartReadout" class="chart-readout">
-        <div><span>Datum</span><strong>Tippe auf einen Punkt</strong></div>
-        <div><span>Depotwert</span><strong>–</strong></div>
-        <div><span>Veränderung</span><strong>–</strong></div>
-        <div><span>Seit Start</span><strong>–</strong></div>
-      </div>
-    </section>
-
-    <section class="metric-ribbon" id="metricRibbon"></section>
-
-    <section class="split-layout">
-      <article class="editorial-panel allocation-panel">
-        <div class="panel-title">
-          <span class="section-no">02</span>
-          <h2>Kapitalstruktur</h2>
-        </div>
-        <div id="allocationBars" class="allocation-bars"></div>
-      </article>
-
-      <article class="editorial-panel pulse-panel">
-        <div class="panel-title">
-          <span class="section-no">03</span>
-          <h2>Wochenpuls</h2>
-        </div>
-        <div id="weeklyPulse" class="pulse-grid"></div>
-      </article>
-    </section>
+  <section class="grid split">
+    <article class="card">
+      <div class="card-head"><h2>Gesamtentwicklung</h2><span id="rangeLabel"></span></div>
+      <svg id="depotChart" class="chart tall" viewBox="0 0 920 360"></svg>
+    </article>
+    <article class="card">
+      <div class="card-head"><h2>Depotstruktur</h2><span>Aktueller Stand</span></div>
+      <svg id="donut" class="chart tall" viewBox="0 0 420 350"></svg>
+      <div id="catLegend" class="legend"></div>
+    </article>
   </section>
 
-  <section class="view" id="view-holdings">
-    <section class="page-intro">
-      <div class="kicker">All holdings</div>
-      <h1>Jede Position<br><em>erzählt ihre Geschichte.</em></h1>
-    </section>
-    <section id="holdingGrid" class="holding-grid"></section>
+  <section class="grid split">
+    <article class="card">
+      <div class="card-head"><h2>Wochenvergleich</h2><span>Seit letztem Screenshot</span></div>
+      <div id="weeklyKpis" class="mini-grid"></div>
+    </article>
+    <article class="card">
+      <div class="card-head"><h2>Gewinner & Verlierer</h2><span>Seit letztem Screenshot</span></div>
+      <div id="ranking"></div>
+    </article>
   </section>
 
-  <section class="view" id="view-story">
-    <section class="page-intro">
-      <div class="kicker">Chronik</div>
-      <h1>Von Februar<br><em>bis heute.</em></h1>
-    </section>
-    <section id="storyRail" class="story-rail"></section>
+  <section class="card">
+    <div class="card-head"><h2>Hauptpositionen im Vergleich</h2><span>Indexiert auf 100</span></div>
+    <div class="tabs" id="coreTabs"></div>
+    <svg id="coreChart" class="chart tall" viewBox="0 0 1100 360"></svg>
+    <div id="coreLegend" class="legend"></div>
   </section>
 
-  <section class="view" id="view-insights">
-    <section class="page-intro">
-      <div class="kicker">Automatische Einordnung</div>
-      <h1>Was die Zahlen<br><em>wirklich sagen.</em></h1>
-    </section>
-    <section id="insightCards" class="insight-cards"></section>
+  <section class="grid split">
+    <article class="card">
+      <div class="card-head"><h2>Einzelpositionen</h2><span>Karten mit Verlauf und Abstand zum Hoch</span></div>
+      <div id="positionCards" class="position-grid"></div>
+    </article>
+    <article class="card">
+      <div class="card-head"><h2>Drawdown</h2><span>Abstand zum bisherigen Hoch</span></div>
+      <svg id="drawdownChart" class="chart" viewBox="0 0 760 300"></svg>
+      <div id="drawdownFacts" class="fact-grid"></div>
+    </article>
+  </section>
 
-    <section class="sparplan-feature">
-      <div>
-        <div class="kicker">Sparplan</div>
-        <h2>150 € monatlich.<br>Drei Themen.</h2>
-        <p>Je 50 € fließen in künstliche Intelligenz, Security und industrielle Technologien.</p>
-      </div>
-      <div id="sparplanVisual" class="sparplan-visual"></div>
-    </section>
+  <section class="grid split">
+    <article class="card">
+      <div class="card-head"><h2>Sparpläne</h2><span>Einzahlung, aktueller Wert, Kursgewinn</span></div>
+      <div class="tabs" id="savingTabs"></div>
+      <svg id="savingsChart" class="chart" viewBox="0 0 760 320"></svg>
+      <div id="savingFacts" class="fact-grid"></div>
+    </article>
+    <article class="card">
+      <div class="card-head"><h2>Monatsentwicklung</h2><span>Monatsanfang bis letzter Messpunkt</span></div>
+      <svg id="monthlyChart" class="chart" viewBox="0 0 650 320"></svg>
+    </article>
+  </section>
+
+  <section class="grid split">
+    <article class="card">
+      <div class="card-head"><h2>Performance je Position</h2><span>Seit Kauf / Sparplanstart</span></div>
+      <svg id="perfChart" class="chart" viewBox="0 0 650 320"></svg>
+    </article>
+    <article class="card">
+      <div class="card-head"><h2>Beitrag zum Gesamtergebnis</h2><span>Gewinn / Verlust in Euro</span></div>
+      <svg id="plChart" class="chart" viewBox="0 0 650 320"></svg>
+    </article>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Datenqualität</h2><span>Nachvollziehbarkeit der Messpunkte</span></div>
+    <div id="qualitySummary" class="mini-grid"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Datum</th><th>Status</th><th>Quelle</th></tr></thead>
+        <tbody id="qualityRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Positionen im Detail</h2><span id="lastUpdate"></span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Wertpapier</th><th>Kategorie</th><th>Investiert</th><th>Aktueller Wert</th><th>G/V</th><th>Performance</th><th>Anteil</th></tr></thead>
+        <tbody id="positionRows"></tbody>
+      </table>
+    </div>
   </section>
 </main>
 
-<aside id="detailPanel" class="detail-panel" aria-hidden="true">
-  <button id="detailClose" class="detail-close">Schließen</button>
-  <div id="detailContent"></div>
-</aside>
-
-<div id="exportMenu" class="export-menu">
-  <button id="exportCsv">CSV exportieren</button>
-  <button id="exportJson">JSON exportieren</button>
-  <button id="printPdf">Drucken / PDF</button>
-</div>
-
-<script src="data.js?v=2026.0"></script>
-<script src="app.js?v=2026.0"></script>
+<script src="data.js?v=4.3"></script>
+<script src="app.js?v=4.3"></script>
 </body>
 </html>

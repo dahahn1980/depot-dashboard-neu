@@ -1,18 +1,8 @@
-# Portfolio OS 2026 — Version 7
+# Depot Dashboard V4.3
 
-Radikal neues Editorial Design:
-- helles, magazinartiges Layout statt klassischem Dark Dashboard
-- sehr große Typografie und asymmetrische Komposition
-- interaktiver Gesamtverlauf
-- Positionskarten mit Vollbild-Detailpanel
-- visuelle Historie
-- automatisch erzeugte Insights
-- Sparplan-Feature
-- CSV-, JSON- und PDF-Export
+Fehlerbehebung:
+- Prüfung von `window.D` auf `typeof D === "undefined"` korrigiert.
+- `data.js` definiert `const D`; diese Variable ist im Browser nicht automatisch `window.D`.
+- Cache-Version auf 4.3 angehoben.
 
-## Update-Workflow
-Der bewährte Ablauf bleibt:
-Screenshot → aktualisierte data.js → Upload nach GitHub.
-
-## Installation
-Alle Dateien in das Root-Verzeichnis des GitHub-Pages-Repositories hochladen und vorhandene Dateien ersetzen.
+Alle Dateien gemeinsam hochladen und ersetzen.
