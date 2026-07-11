@@ -1,12 +1,18 @@
-# Depot Dashboard V4.5 – Sticky Insight-Leiste
+# Depot Dashboard V4.6 – Ein-/ausfahrbare Insight-Leiste
 
-Verbesserungen gegenüber V4.4:
+Neu gegenüber V4.5:
 
-- Insight-Leiste hebt sich farblich klar vom Dashboard ab.
-- Dunkler Navy-Verlauf mit hellen Kennzahlen.
-- Die komplette rechte Spalte bleibt beim Scrollen sichtbar.
-- Die Kopfleiste innerhalb der Insight-Spalte bleibt ebenfalls stehen.
-- Die Insight-Spalte besitzt eine eigene Scrollfläche, falls ihr Inhalt höher als der Bildschirm ist.
-- Auf iPad/iPhone im Hochformat bleibt die mobile Bottom-Sheet-Lösung erhalten.
+- Insight-Leiste ist standardmäßig geschlossen.
+- Klick auf Diagrammpunkt, Position, Kategorie oder Balken öffnet sie automatisch.
+- Beim Öffnen passt sich das Dashboard-Layout an und wird schmaler.
+- Beim Schließen nutzt das Dashboard wieder die volle Breite.
+- Zusätzlicher „Insights“-Button öffnet die Portfolio-Gesamtübersicht.
+- Auf iPad/iPhone fährt die Insight-Leiste als Bottom Sheet hoch.
+- Balkendiagramme komplett neu gestaltet:
+  - Beschriftung immer oberhalb des Balkens
+  - Werte rechtsbündig
+  - keine überdeckte Typografie
+  - klare Null-Linie bei positiven und negativen Werten
+  - gesamte Zeile anklickbar
 
-Installation: Alle Dateien gemeinsam in das Root-Verzeichnis des GitHub-Pages-Repositories hochladen und bestehende Dateien ersetzen.
+Installation: Alle Dateien gemeinsam hochladen und bestehende Dateien ersetzen.

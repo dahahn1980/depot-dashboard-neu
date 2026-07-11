@@ -4,9 +4,9 @@ const eur=v=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).fo
 const pct=v=>new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(v)+" %";
 const latest=D.depot.at(-1),start=D.depot[0],low=Math.min(...D.depot),high=Math.max(...D.depot),lastDelta=latest-D.depot.at(-2);
 const allSeries={...D.core,...D.savings};
-const insightPanel=document.getElementById("insightPanel");
+const insightPanel=document.getElementById("insightPanel");const appLayout=document.querySelector(".app-layout");
 
-function insightOpen(){if(window.innerWidth<=980)insightPanel.classList.add("open")}
+function insightOpen(){appLayout.classList.add("insight-open")}
 function setInsight(type,title,html){document.getElementById("insightType").textContent=type;document.getElementById("insightTitle").textContent=title;document.getElementById("insightBody").innerHTML=html;insightOpen()}
 function miniSpark(values,color="#2563eb"){const W=290,H=120,p=6,lo=Math.min(...values),hi=Math.max(...values),x=i=>p+i*(W-2*p)/Math.max(1,values.length-1),y=v=>p+(hi-v)*(H-2*p)/((hi-lo)||1);return `<svg class="insight-chart" viewBox="0 0 ${W} ${H}"><polyline points="${values.map((v,i)=>`${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
 function showPortfolioInsight(){const best=[...D.positions].sort((a,b)=>b.perf-a.perf)[0],worst=[...D.positions].sort((a,b)=>a.perf-b.perf)[0],largest=[...D.positions].sort((a,b)=>b.value-a.value)[0];setInsight("Portfolio Insight","Gesamtübersicht",`<div class="insight-section"><div class="insight-label">Aktueller Depotwert</div><div class="insight-value">${eur(latest)}</div><div class="insight-change ${lastDelta>=0?"pos":"neg"}">${lastDelta>=0?"+":""}${eur(lastDelta)} seit letztem Screenshot</div>${miniSpark(D.depot)}</div><div class="insight-section"><div class="insight-label">Kennzahlen</div><div class="insight-grid"><div class="insight-stat"><span>Seit Start</span><strong class="${latest-start>=0?"pos":"neg"}">${eur(latest-start)}</strong></div><div class="insight-stat"><span>Rendite</span><strong>${pct((latest/start-1)*100)}</strong></div><div class="insight-stat"><span>Abstand Hoch</span><strong>${pct((latest/high-1)*100)}</strong></div><div class="insight-stat"><span>Datenstand</span><strong>${D.meta.lastUpdate}</strong></div></div></div><div class="insight-section"><div class="insight-label">Einordnung</div><div class="insight-list"><div class="insight-list-row"><span>Größte Position</span><strong>${largest.name}</strong></div><div class="insight-list-row"><span>Stärkste Position</span><strong class="pos">${best.name}</strong></div><div class="insight-list-row"><span>Schwächste Position</span><strong class="neg">${worst.name}</strong></div></div></div>`)}
@@ -15,7 +15,42 @@ function showChartInsight(series,labels,i,globalIndex=null){const v=series.value
 function showCategoryInsight(c){const total=D.categories.reduce((a,b)=>a+b.value,0),ps=D.positions.filter(p=>p.cat===c.name);setInsight("Category Insight",c.name,`<div class="insight-section"><div class="insight-label">Kategorienwert</div><div class="insight-value">${eur(c.value)}</div><div class="insight-change">${pct(c.value/total*100)} des Gesamtdepots</div></div><div class="insight-section"><div class="insight-label">Enthaltene Positionen</div><div class="insight-list">${ps.map(p=>`<div class="insight-list-row" data-position="${p.name}"><span>${p.name}</span><strong>${eur(p.value)}</strong></div>`).join("")}</div></div>`);document.querySelectorAll('[data-position]').forEach(el=>el.onclick=()=>showPositionInsight(el.dataset.position))}
 
 function lineChart(id,labels,series,{percent=false,zero=false,globalOffset=0}={}){const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:64,r:18,t:18,b:42};let vals=series.flatMap(s=>s.values),lo=Math.min(...vals),hi=Math.max(...vals);if(zero){lo=Math.min(lo,0);hi=Math.max(hi,0)}const pad=(hi-lo)*.1||1;lo-=pad;hi+=pad;const x=i=>p.l+i*(W-p.l-p.r)/Math.max(1,labels.length-1),y=v=>p.t+(hi-v)*(H-p.t-p.b)/(hi-lo);let out="";for(let i=0;i<5;i++){const v=lo+i*(hi-lo)/4,yy=y(v);out+=`<line x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}" stroke="var(--line)"/><text x="${p.l-8}" y="${yy+4}" text-anchor="end" fill="var(--muted)" font-size="10">${percent?pct(v):Math.round(v/1000)+"k"}</text>`}labels.forEach((d,i)=>{if(i===0||i===labels.length-1||i%3===0)out+=`<text x="${x(i)}" y="${H-14}" text-anchor="middle" fill="var(--muted)" font-size="10">${d}</text>`});series.forEach((s,si)=>{const points=s.values.map((v,i)=>`${x(i)},${y(v)}`).join(" ");out+=`<polyline points="${points}" fill="none" stroke="${C[si%C.length]}" stroke-width="${s.bold?3.4:2.4}"/>`;s.values.forEach((v,i)=>{out+=`<circle class="chart-point" data-series="${si}" data-index="${i}" cx="${x(i)}" cy="${y(v)}" r="8" fill="transparent"/><circle cx="${x(i)}" cy="${y(v)}" r="3" fill="${C[si%C.length]}" stroke="white"/>`})});svg.innerHTML=out;svg.querySelectorAll('.chart-point').forEach(point=>point.onclick=()=>{const si=+point.dataset.series,i=+point.dataset.index,s=series[si];showChartInsight(s,labels,i,globalOffset+i)})}
-function hbars(id,rows,key,fmt,signed=false){const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height,p={l:195,r:80,t:12,b:16},max=Math.max(...rows.map(r=>Math.abs(r[key])))||1,rh=(H-p.t-p.b)/rows.length;let out="";rows.forEach((r,i)=>{const y=p.t+i*rh+rh*.23,h=rh*.5,w=Math.abs(r[key])/max*(W-p.l-p.r),x=signed?(r[key]>=0?p.l:p.l-w):p.l,col=signed?(r[key]>=0?"#15803d":"#b91c1c"):"#2563eb";out+=`<text x="${p.l-8}" y="${y+h*.72}" text-anchor="end" fill="var(--ink)" font-size="11">${r.name}</text><rect class="bar-hit" data-index="${i}" x="${Math.min(x,p.l)}" y="${y-5}" width="${Math.max(w,14)}" height="${h+10}" fill="transparent"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${col}"/><text x="${signed?(r[key]>=0?x+w+6:x-6):x+w+6}" y="${y+h*.72}" text-anchor="${signed&&r[key]<0?"end":"start"}" fill="var(--ink)" font-size="11">${fmt(r[key])}</text>`});if(signed)out+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="var(--muted)"/>`;svg.innerHTML=out;svg.querySelectorAll('.bar-hit').forEach(hit=>hit.onclick=()=>{const r=rows[+hit.dataset.index];if(D.positions.some(p=>p.name===r.name))showPositionInsight(r.name);else setInsight("Chart Insight",r.name,`<div class="insight-value ${r[key]>=0?"pos":"neg"}">${fmt(r[key])}</div>`)})}
+function hbars(id,rows,key,fmt,signed=false){
+  const svg=document.getElementById(id),W=+svg.viewBox.baseVal.width,H=+svg.viewBox.baseVal.height;
+  const padX=14,padY=10,rowH=(H-padY*2)/rows.length;
+  const max=Math.max(...rows.map(r=>Math.abs(r[key])))||1;
+  const left=padX,right=W-padX,center=(left+right)/2;
+  let out="";
+  rows.forEach((r,i)=>{
+    const y=padY+i*rowH;
+    const labelY=y+11;
+    const trackY=y+18;
+    const trackH=Math.max(7,Math.min(11,rowH-24));
+    const value=r[key];
+    const fullW=right-left;
+    let x=left,w=Math.abs(value)/max*fullW,barColor="#2563eb";
+    if(signed){
+      const half=(fullW-10)/2;
+      w=Math.abs(value)/max*half;
+      x=value>=0?center+5:center-5-w;
+      barColor=value>=0?"#15803d":"#b91c1c";
+      out+=`<line class="bar-chart-zero" x1="${center}" y1="${trackY-2}" x2="${center}" y2="${trackY+trackH+2}"/>`;
+      out+=`<rect class="bar-chart-track" x="${left}" y="${trackY}" width="${half}" height="${trackH}" rx="${trackH/2}"/><rect class="bar-chart-track" x="${center+5}" y="${trackY}" width="${half}" height="${trackH}" rx="${trackH/2}"/>`;
+    }else{
+      out+=`<rect class="bar-chart-track" x="${left}" y="${trackY}" width="${fullW}" height="${trackH}" rx="${trackH/2}"/>`;
+    }
+    out+=`<text class="bar-chart-label" x="${left}" y="${labelY}">${r.name}</text>`;
+    out+=`<text class="bar-chart-value" x="${right}" y="${labelY}" text-anchor="end">${fmt(value)}</text>`;
+    out+=`<rect x="${x}" y="${trackY}" width="${Math.max(w,2)}" height="${trackH}" rx="${trackH/2}" fill="${barColor}"/>`;
+    out+=`<rect class="bar-hit" data-index="${i}" x="${left}" y="${y}" width="${fullW}" height="${rowH}" fill="transparent"/>`;
+  });
+  svg.innerHTML=out;
+  svg.querySelectorAll(".bar-hit").forEach(hit=>hit.onclick=()=>{
+    const r=rows[+hit.dataset.index];
+    if(D.positions.some(p=>p.name===r.name))showPositionInsight(r.name);
+    else setInsight("Chart Insight",r.name,`<div class="insight-value ${r[key]>=0?"pos":"neg"}">${fmt(r[key])}</div>`);
+  });
+}
 function sparkline(values){const W=220,H=54,p=3,lo=Math.min(...values),hi=Math.max(...values),x=i=>p+i*(W-2*p)/(values.length-1),y=v=>p+(hi-v)*(H-2*p)/((hi-lo)||1);return `<svg class="spark" viewBox="0 0 ${W} ${H}"><polyline points="${values.map((v,i)=>`${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="#2563eb" stroke-width="2.4"/></svg>`}
 
 document.getElementById("rangeLabel").textContent=D.dates[0]+"–"+D.meta.lastUpdate;document.getElementById("lastUpdate").textContent="Stand "+D.meta.lastUpdate;
@@ -32,6 +67,8 @@ hbars("monthlyChart",D.monthly.map(m=>({name:m.month.slice(5)+"/"+m.month.slice(
 const qCounts={direct:0,summed:0,history:0};D.quality.forEach(q=>qCounts[q.status]++);document.getElementById("qualitySummary").innerHTML=[["Direkte Screenshots",qCounts.direct],["Summierte Werte",qCounts.summed],["Historienwerte",qCounts.history],["Messpunkte gesamt",D.quality.length]].map(x=>`<div class="mini-card"><div class="label">${x[0]}</div><div class="value">${x[1]}</div></div>`).join("");document.getElementById("qualityRows").innerHTML=D.quality.slice().reverse().map(q=>`<tr><td>${q.date}</td><td><span class="badge ${q.status}">${q.status}</span></td><td>${q.label}</td></tr>`).join("");
 const total=D.positions.reduce((a,b)=>a+b.value,0);document.getElementById("positionRows").innerHTML=D.positions.map(p=>`<tr data-name="${p.name}" style="cursor:pointer"><td><strong>${p.name}</strong></td><td>${p.cat}</td><td>${eur(p.invested)}</td><td>${eur(p.value)}</td><td><span class="badge ${p.pl>=0?"pos":"neg"}">${p.pl>=0?"+":""}${eur(p.pl)}</span></td><td class="${p.perf>=0?"pos":"neg"}"><strong>${p.perf>=0?"+":""}${pct(p.perf)}</strong></td><td style="min-width:160px">${pct(p.value/total*100)}<div class="bar"><span style="width:${p.value/total*100}%"></span></div></td></tr>`).join("");document.querySelectorAll('#positionRows tr').forEach(r=>r.onclick=()=>showPositionInsight(r.dataset.name));
 
-document.getElementById("insightReset").onclick=()=>{document.querySelectorAll('.position-card').forEach(c=>c.classList.remove('active'));showPortfolioInsight()};document.querySelector('.insight-head').onclick=e=>{if(window.innerWidth<=980&&e.target.id!=="insightReset")insightPanel.classList.toggle('open')};
+document.getElementById("insightReset").onclick=()=>{document.querySelectorAll(".position-card").forEach(c=>c.classList.remove("active"));showPortfolioInsight()};
+document.getElementById("insightClose").onclick=()=>appLayout.classList.remove("insight-open");
+document.getElementById("insightLauncher").onclick=()=>{showPortfolioInsight();appLayout.classList.add("insight-open")};
 const root=document.documentElement;document.getElementById("themeBtn").onclick=()=>{const dark=root.getAttribute("data-theme")==="dark";root.setAttribute("data-theme",dark?"light":"dark");localStorage.setItem("theme",dark?"light":"dark")};if(localStorage.getItem("theme")==="dark")root.setAttribute("data-theme","dark");
-showPortfolioInsight();if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");
+showPortfolioInsight();appLayout.classList.remove("insight-open");if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");
