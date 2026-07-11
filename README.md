@@ -1,8 +1,12 @@
-# Depot Dashboard V4.3
+# Depot Dashboard V4.4 – Insight-Leiste
 
-Fehlerbehebung:
-- Prüfung von `window.D` auf `typeof D === "undefined"` korrigiert.
-- `data.js` definiert `const D`; diese Variable ist im Browser nicht automatisch `window.D`.
-- Cache-Version auf 4.3 angehoben.
+Diese Version basiert auf dem informativen V4.3-Layout.
 
-Alle Dateien gemeinsam hochladen und ersetzen.
+Neu:
+- kein Popup mehr
+- feste, kontextsensitive Insight-Leiste rechts
+- Klick auf Position, Diagrammpunkt, Kategorie oder Balken aktualisiert nur die Leiste
+- auf iPhone/iPad im Hochformat wird die Leiste zu einem Bottom Sheet
+- Reset-Schaltfläche führt zurück zur Portfolioübersicht
+
+Installation: Alle Dateien gemeinsam in das Root-Verzeichnis des GitHub-Pages-Repositories hochladen und bestehende Dateien ersetzen.
