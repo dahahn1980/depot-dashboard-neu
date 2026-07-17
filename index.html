@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172554">
-<title>Depot Dashboard V5.3</title>
+<title>Depot Dashboard V5.4</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="style.css?v=5.3">
+<link rel="stylesheet" href="v54.css?v=5.4">
 </head>
 <body>
 <header>
@@ -35,12 +36,55 @@
         <article class="card">
           <div class="card-head"><div><h2>Gesamtentwicklung</h2><span id="rangeLabel"></span></div><button class="explain-btn" data-explain="development">ⓘ</button></div>
           <svg id="depotChart" class="chart tall" viewBox="0 0 920 360"></svg>
+          <div id="breakEvenFacts" class="fact-grid"></div>
           <div class="learn-box" data-learning="development"></div>
         </article>
         <article class="card">
           <div class="card-head"><div><h2>Depotstruktur</h2><span>Aktueller Stand</span></div><button class="explain-btn" data-explain="allocation">ⓘ</button></div>
           <svg id="donut" class="chart tall" viewBox="0 0 420 350"></svg>
           <div id="catLegend" class="legend"></div>
+          <div class="learn-box" data-learning="allocation"></div>
+        </article>
+      </section>
+
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Gewinn-Meilensteine</h2><span>Break-even, Gewinnstufen und Rekordstände</span></div><button class="explain-btn" data-explain="profitAccount">ⓘ</button></div>
+          <div id="milestoneGrid" class="milestone-grid"></div>
+          <div class="learn-box" data-learning="profitAccount"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Allzeithoch & Break-even</h2><span>Aktueller Abstand zu den wichtigsten Schwellen</span></div><button class="explain-btn" data-explain="drawdown">ⓘ</button></div>
+          <div id="highWaterFacts" class="fact-grid"></div>
+          <div id="highWaterMessage" class="recommendation"></div>
+          <div class="learn-box" data-learning="drawdown"></div>
+        </article>
+      </section>
+
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Bestand & Anteile</h2><span>Stückzahl, Kurs, Einstand und Positionswert</span></div><button class="explain-btn" data-explain="positions">ⓘ</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Position</th><th>Anteile</th><th>Ø Einstand</th><th>Aktueller Kurs</th><th>Positionswert</th><th>G/V</th></tr></thead><tbody id="holdingsRows"></tbody></table></div>
+          <div class="learn-box" data-learning="positions"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Anzahl der Anteile</h2><span>Aktueller Bestand je Position</span></div><button class="explain-btn" data-explain="positions">ⓘ</button></div>
+          <svg id="quantityChart" class="chart tall" viewBox="0 0 720 360"></svg>
+          <div class="learn-box" data-learning="positions"></div>
+        </article>
+      </section>
+
+      <section class="grid split-even">
+        <article class="card">
+          <div class="card-head"><div><h2>Vermögensaufbau</h2><span>Depotwert, Einstandskapital und Buchgewinn</span></div><button class="explain-btn" data-explain="profitAccount">ⓘ</button></div>
+          <svg id="wealthBuildChart" class="chart tall" viewBox="0 0 760 360"></svg>
+          <div id="wealthBuildFacts" class="fact-grid"></div>
+          <div class="learn-box" data-learning="profitAccount"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Historische Asset-Allokation</h2><span>Entwicklung der vier Anlagebereiche</span></div><button class="explain-btn" data-explain="allocation">ⓘ</button></div>
+          <svg id="allocationHistoryChart" class="chart tall" viewBox="0 0 760 360"></svg>
+          <div id="allocationHistoryLegend" class="legend"></div>
           <div class="learn-box" data-learning="allocation"></div>
         </article>
       </section>
@@ -208,5 +252,6 @@
 
 <script src="data.js?v=5.3"></script>
 <script src="app.js?v=5.3"></script>
+<script src="v54.js?v=5.4"></script>
 </body>
 </html>
