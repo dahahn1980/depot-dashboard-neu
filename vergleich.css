@@ -371,6 +371,7 @@
 /* V2: eigenständige Informationsarchitektur der Designstudie */
 .design-comparison.comparison-ready {
   background: #edf1f5;
+  overflow-x: hidden;
 }
 
 .design-comparison .portfolio-overview {
