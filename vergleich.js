@@ -1,4 +1,3 @@
-(() => {
   const dashboard = document.getElementById("view-dashboard");
   const kpis = document.getElementById("kpis");
   const chart = document.getElementById("depotChart");
@@ -37,6 +36,10 @@
   document.querySelector(".position-analysis-card")?.classList.add("positions-focus");
   document.querySelector(".analysis-drawer")?.classList.add("secondary-analysis");
   document.querySelector(".app-layout")?.classList.remove("insight-open");
+
+  const learnMode = document.getElementById("learnMode");
+  if (learnMode) learnMode.checked = false;
+  document.body.classList.remove("learning-on");
 
   const subtitle = document.querySelector("header p");
   if (subtitle) subtitle.textContent = "Überblick, Entwicklung und Positionen";
