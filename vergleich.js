@@ -1,3 +1,4 @@
+(() => {
   const dashboard = document.getElementById("view-dashboard");
   const kpis = document.getElementById("kpis");
   const chart = document.getElementById("depotChart");
