@@ -367,3 +367,215 @@
   padding: 1rem;
   font: 16px/1.5 system-ui, sans-serif;
 }
+
+/* V2: eigenständige Informationsarchitektur der Designstudie */
+.design-comparison.comparison-ready {
+  background: #edf1f5;
+}
+
+.design-comparison .portfolio-overview {
+  margin-bottom: 18px;
+}
+
+.design-comparison .focus-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.design-comparison .focus-main,
+.design-comparison .focus-rail {
+  min-width: 0;
+}
+
+.design-comparison .focus-main > .card,
+.design-comparison .focus-rail > .card {
+  margin-top: 0;
+}
+
+.design-comparison .focus-main > .card {
+  height: 100%;
+}
+
+.design-comparison .focus-rail {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 14px;
+}
+
+.design-comparison .focus-rail .card {
+  padding: 18px;
+}
+
+.design-comparison .focus-rail .card-head {
+  margin-bottom: 10px;
+}
+
+.design-comparison .focus-rail .mini-grid {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.design-comparison .focus-rail .mini-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 11px;
+}
+
+.design-comparison .focus-rail .mini-card .value {
+  margin-top: 0;
+  font-size: 16px;
+  text-align: right;
+}
+
+.design-comparison .ranking-card .rank-item {
+  padding: 9px 0;
+}
+
+.design-comparison .positions-focus {
+  padding-top: 22px;
+}
+
+.design-comparison .secondary-analysis {
+  background: rgba(255, 255, 255, .58);
+  border-style: dashed;
+}
+
+@media (min-width: 1181px) {
+  .design-comparison > header {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 80;
+    width: 232px;
+    display: flex;
+    flex-direction: column;
+    color: #f8fafc;
+    background: linear-gradient(180deg, #111b2d 0%, #16233a 100%);
+    border: 0;
+    padding: 30px 20px 22px;
+    box-shadow: 10px 0 32px rgba(21, 33, 51, .12);
+    backdrop-filter: none;
+  }
+
+  .design-comparison .topbar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    margin: 0;
+  }
+
+  .design-comparison > header .eyebrow {
+    color: #7eb5ff;
+  }
+
+  .design-comparison > header h1 {
+    color: #fff;
+    margin-top: 8px;
+  }
+
+  .design-comparison > header p {
+    max-width: 180px;
+    color: #9eabc0;
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+
+  .design-comparison .header-actions {
+    order: 2;
+    justify-content: flex-start;
+  }
+
+  .design-comparison .learn-toggle,
+  .design-comparison .icon-btn {
+    color: #dce7f7;
+    background: rgba(255, 255, 255, .07);
+    border-color: rgba(255, 255, 255, .12);
+  }
+
+  .design-comparison .section-nav {
+    width: 100%;
+    margin: 34px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: visible;
+  }
+
+  .design-comparison .section-tab {
+    width: 100%;
+    min-height: 46px;
+    color: #9eabc0;
+    border-radius: 11px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  .design-comparison .section-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, .06);
+  }
+
+  .design-comparison .section-tab.active {
+    color: #fff;
+    background: #1769e0;
+    box-shadow: 0 8px 20px rgba(23, 105, 224, .25);
+  }
+
+  .design-comparison .app-layout {
+    width: auto;
+    max-width: none;
+    margin: 0 0 0 232px;
+    padding: 28px 28px 76px;
+  }
+
+  .design-comparison .app-layout.insight-open {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+
+  .design-comparison .chart.tall {
+    height: 390px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .design-comparison .focus-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .design-comparison .focus-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
+  .design-comparison .focus-rail .mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .design-comparison .portfolio-overview {
+    margin-bottom: 12px;
+  }
+
+  .design-comparison .focus-layout,
+  .design-comparison .focus-rail {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .design-comparison .focus-rail .mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .design-comparison .focus-rail .card {
+    padding: 15px;
+  }
+
+  .design-comparison .positions-focus {
+    padding-top: 16px;
+  }
+}
