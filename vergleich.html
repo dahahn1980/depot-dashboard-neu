@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Depot-Dashboard – Designvergleich</title>
+</head>
+<body>
+  <p>Vergleichsansicht wird geladen …</p>
+  <script>
+    fetch("index.html")
+      .then(response => {
+        if (!response.ok) throw new Error("Die Ausgangsseite konnte nicht geladen werden.");
+        return response.text();
+      })
+      .then(html => {
+        const comparisonHead = '<link rel="stylesheet" href="vergleich.css?v=1">';
+        const comparisonBar = '<div class="comparison-bar" aria-label="Designvergleich"><span>Designstudie</span><a href="index.html">Original ansehen</a></div>';
+
+        html = html
+          .replace("<title>Depot Dashboard V5.4</title>", "<title>Depot-Dashboard – Designstudie</title>")
+          .replace("</head>", comparisonHead + "</head>")
+          .replace("<body>", '<body class="design-comparison">')
+          .replace("</body>", comparisonBar + "</body>");
+
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(error => {
+        document.body.innerHTML = '<p class="load-error">' + error.message + '</p>';
+      });
+  </script>
+</body>
+</html>
