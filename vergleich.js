@@ -38,6 +38,25 @@
   document.querySelector(".analysis-drawer")?.classList.add("secondary-analysis");
   document.querySelector(".app-layout")?.classList.remove("insight-open");
 
+  /* Auf kleinen Touchscreens öffnen Diagrammbewegungen kein Overlay mehr. */
+  const originalSetInsight = window.setInsight;
+  let mobileInsightAllowed = false;
+  const intentionalInsightTargets = ".explain-btn, .insight-launcher, .position-card, .rank-item, .position-check";
+
+  document.addEventListener("click", event => {
+    if (!event.target.closest(intentionalInsightTargets)) return;
+    mobileInsightAllowed = true;
+    setTimeout(() => { mobileInsightAllowed = false; }, 0);
+  }, true);
+
+  if (typeof originalSetInsight === "function") {
+    window.setInsight = (...args) => {
+      const compactTouchLayout = window.matchMedia("(max-width: 980px)").matches;
+      if (compactTouchLayout && !mobileInsightAllowed) return;
+      originalSetInsight(...args);
+    };
+  }
+
   const learnMode = document.getElementById("learnMode");
   if (learnMode) learnMode.checked = false;
   document.body.classList.remove("learning-on");
